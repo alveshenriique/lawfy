@@ -1,0 +1,308 @@
+@import "tailwindcss";
+
+@theme {
+  /* 🎨 PALETA LAWFY (REFINADA) */
+  --color-lawfy-primary: #294f62;
+  --color-lawfy-primary-light: #3b6b80;
+  --color-lawfy-primary-soft: #e6eef2;
+
+  --color-lawfy-accent: #1f3a4a;
+
+  --color-lawfy-bg: #f5f7fa;
+  --color-lawfy-surface: #ffffff;
+
+  --color-lawfy-text: #0f172a;
+  --color-lawfy-text-soft: #64748b;
+
+  --color-lawfy-success: #10b981;
+  --color-lawfy-error: #ef4444;
+
+  --radius-lawfy: 0.75rem;
+}
+
+.confirm-modal-actions {
+  @apply flex gap-3 justify-end;
+}
+
+/* ============================= */
+/* 1. BASE (ATOMIC UI) */
+/* ============================= */
+
+.btn-base {
+  @apply w-full p-3 rounded-lawfy font-semibold transition-all flex items-center 
+         justify-center shadow-sm disabled:opacity-50 disabled:cursor-not-allowed text-sm;
+}
+
+.input-base {
+  @apply w-full p-3 bg-white border border-gray-200 rounded-lawfy 
+         text-lawfy-text transition-all outline-none placeholder:text-gray-300;
+}
+
+.input-base:focus {
+  @apply border-lawfy-primary ring-2 ring-lawfy-primary/10;
+}
+
+/* ============================= */
+/* 2. BOTÕES */
+/* ============================= */
+
+.btn-primary {
+  @apply bg-lawfy-primary text-white 
+         hover:bg-lawfy-primary-light 
+         active:scale-[0.97]
+         transition-all duration-200
+         shadow-md;
+}
+
+.btn-new-entity {
+  @apply w-auto px-5 py-2.5 bg-lawfy-primary text-white rounded-lawfy font-semibold 
+         transition-all flex items-center justify-center shadow-md 
+         hover:bg-lawfy-primary-light active:scale-[0.97];
+}
+
+/* ============================= */
+/* 3. LAYOUT */
+/* ============================= */
+
+.dashboard-wrapper {
+  @apply flex min-h-screen bg-lawfy-bg;
+}
+
+.main-content {
+  @apply flex-1 flex flex-col min-w-0;
+}
+
+.content-inner {
+  @apply p-6 md:p-8 w-full max-w-6xl mx-auto;
+}
+
+.page-header-actions {
+  @apply flex justify-between items-center mb-6 pb-4 border-b border-gray-200;
+}
+
+/* ============================= */
+/* 4. SIDEBAR */
+/* ============================= */
+
+.sidebar-container {
+  @apply w-64 bg-lawfy-primary text-white flex flex-col p-6;
+}
+
+.sidebar-nav {
+  @apply flex flex-col gap-1 mt-8 flex-1;
+}
+
+.nav-link {
+  @apply flex items-center gap-3 px-4 py-3 rounded-lg 
+         text-white/70 font-medium transition-all;
+}
+
+.nav-link:hover {
+  @apply bg-white/10 text-white;
+}
+
+.nav-link-active {
+  @apply bg-white text-lawfy-primary font-semibold;
+}
+
+/* ============================= */
+/* 5. TIPOGRAFIA */
+/* ============================= */
+
+.page-title {
+  @apply text-2xl font-bold text-lawfy-text;
+}
+
+.page-subtitle {
+  @apply text-lawfy-text-soft text-sm mt-1;
+}
+
+/* ============================= */
+/* 6. CARDS (DASHBOARD) */
+/* ============================= */
+
+.stat-card {
+  @apply bg-white p-5 rounded-xl border border-gray-100 shadow-sm;
+}
+
+.stat-title {
+  @apply text-sm text-lawfy-text-soft;
+}
+
+.stat-value {
+  @apply text-2xl font-bold text-lawfy-text;
+}
+
+/* ============================= */
+/* 7. TABELAS */
+/* ============================= */
+
+.table-container {
+  @apply w-full bg-white rounded-xl border border-gray-200 shadow-sm;
+}
+
+.lawfy-table {
+  @apply w-full text-left border-collapse;
+}
+
+.table-header {
+  @apply bg-gray-50 border-b border-gray-200;
+}
+
+.table-header-cell {
+  @apply p-4 text-xs font-semibold text-gray-500 uppercase tracking-wide;
+}
+
+.table-row {
+  @apply border-b border-gray-100;
+}
+
+.table-row:hover {
+  @apply bg-gray-50;
+}
+
+.table-cell-main {
+  @apply p-4 text-sm font-medium text-lawfy-text;
+}
+
+.table-cell-data {
+  @apply p-4 text-sm text-lawfy-text-soft;
+}
+
+.badge-id {
+  @apply px-2 py-1 bg-gray-100 text-gray-500 text-xs font-bold rounded-md uppercase;
+}
+
+/* ============================= */
+/* 8. ALERTAS */
+/* ============================= */
+
+.alert-error {
+  @apply bg-red-50 text-lawfy-error p-4 rounded-lawfy mb-6 font-semibold text-sm border border-red-100 flex items-center gap-2;
+}
+
+/* ============================= */
+/* 9. LOGIN */
+/* ============================= */
+
+.auth-page-container {
+  @apply min-h-screen flex items-center justify-center 
+         bg-gradient-to-br from-lawfy-primary to-lawfy-accent p-6;
+}
+
+.auth-card {
+  @apply bg-white p-8 rounded-2xl shadow-xl w-full max-w-md;
+}
+
+/* ============================= */
+/* DASHBOARD */
+/* ============================= */
+
+.dashboard-header {
+  @apply mb-8;
+}
+
+.stats-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+}
+
+.stat-card {
+  @apply bg-white p-6 rounded-xl border border-gray-200 shadow-sm 
+         transition-all hover:shadow-md;
+}
+
+.stat-label {
+  @apply text-sm text-lawfy-text-soft mb-2;
+}
+
+.stat-value {
+  @apply text-2xl font-bold text-lawfy-text;
+}
+
+.stat-indicator {
+  @apply text-sm mt-2 block;
+}
+
+/* ============================= */
+/* MODAL */
+/* ============================= */
+
+.modal-overlay {
+  @apply fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4;
+}
+
+.modal-container {
+  @apply bg-white rounded-xl shadow-xl w-full max-w-md;
+}
+
+.modal-header {
+  @apply flex items-center justify-between p-6 border-b border-gray-200;
+}
+
+.modal-title {
+  @apply text-lg font-semibold text-lawfy-text;
+}
+
+.modal-close {
+  @apply text-gray-400 hover:text-gray-600 transition-colors text-lg;
+}
+
+.modal-body {
+  @apply p-6;
+}
+
+/* ============================= */
+/* BOTÕES SECUNDÁRIO E DANGER */
+/* ============================= */
+
+.btn-secondary {
+  @apply bg-gray-100 text-lawfy-text hover:bg-gray-200
+         active:scale-[0.97] transition-all duration-200;
+}
+
+.btn-danger {
+  @apply bg-red-500 text-white hover:bg-red-600
+         active:scale-[0.97] transition-all duration-200 shadow-md;
+}
+
+/* ============================= */
+/* AÇÕES DA TABELA */
+/* ============================= */
+
+.table-cell-actions {
+  @apply p-4 text-sm flex items-center justify-center gap-2;
+}
+
+.btn-table-edit {
+  @apply px-3 py-1.5 text-xs font-semibold rounded-lg
+         bg-lawfy-primary-soft text-lawfy-primary
+         hover:bg-lawfy-primary hover:text-white
+         transition-all duration-200;
+}
+
+.btn-table-delete {
+  @apply px-3 py-1.5 text-xs font-semibold rounded-lg
+         bg-red-50 text-red-500
+         hover:bg-red-500 hover:text-white
+         transition-all duration-200;
+}
+
+/* ============================= */
+/* BADGE STATUS PROCESSO */
+/* ============================= */
+
+.badge-status-processo {
+  @apply px-2 py-1 text-xs font-bold rounded-md;
+}
+
+.badge-status-ativo {
+  @apply bg-green-100 text-green-700;
+}
+
+.badge-status-arquivado {
+  @apply bg-gray-100 text-gray-600;
+}
+
+.badge-status-encerrado {
+  @apply bg-red-100 text-red-600;
+}
