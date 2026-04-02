@@ -17,7 +17,7 @@ export function FinanceiroForm({ onSubmit, isLoading, processos, defaultValues }
     register,
     handleSubmit,
     control,
-    formState: { errors }
+    formState: { errors },
   } = useForm<FinanceiroFormData>({
     resolver: zodResolver(financeiroSchema),
     defaultValues: {
@@ -31,9 +31,8 @@ export function FinanceiroForm({ onSubmit, isLoading, processos, defaultValues }
   const valorTotal = useWatch({ control, name: 'valor_total' }) ?? 0;
   const tipo = useWatch({ control, name: 'tipo' });
 
-  const valorParcela = numeroParcelas > 0 && valorTotal > 0
-    ? valorTotal / numeroParcelas
-    : 0;
+  const valorParcela =
+    numeroParcelas > 0 && valorTotal > 0 ? valorTotal / numeroParcelas : 0;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -149,8 +148,11 @@ export function FinanceiroForm({ onSubmit, isLoading, processos, defaultValues }
               min="1"
               max="60"
               className={`input-base ${errors.numero_parcelas ? 'input-error' : ''}`}
-              value={field.value ?? 1}
-              onChange={e => field.onChange(parseInt(e.target.value) || 1)}
+              value={field.value === 0 ? '' : field.value}
+              onChange={e => {
+                const val = e.target.value;
+                field.onChange(val === '' ? 0 : parseInt(val));
+              }}
             />
             {errors.numero_parcelas && (
               <span className="input-error-msg">{errors.numero_parcelas.message}</span>
@@ -164,7 +166,10 @@ export function FinanceiroForm({ onSubmit, isLoading, processos, defaultValues }
         <div className="financeiro-preview">
           <span className="text-sm text-lawfy-text-soft">Valor por parcela:</span>
           <span className="text-sm font-semibold text-lawfy-primary">
-            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valorParcela)}
+            {new Intl.NumberFormat('pt-BR', {
+              style: 'currency',
+              currency: 'BRL',
+            }).format(valorParcela)}
           </span>
         </div>
       )}

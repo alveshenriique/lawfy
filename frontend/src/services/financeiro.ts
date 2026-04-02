@@ -13,11 +13,11 @@ export const financeiroService = {
     api.get<Financeiro[]>(`/financeiro?processo_id=${processoId}`).then(r => r.data),
 
   create: (data: FinanceiroFormData) =>
-    api.post<Financeiro>('/financeiro/gerar', data).then(r => r.data),
+    api.post<Financeiro>('/financeiro', data).then(r => r.data),
 
   remove: (id: number) =>
     api.delete(`/financeiro/${id}`),
 
   quitarParcela: (id: number) =>
-    api.patch(`/parcelas/${id}/quitar`).then(r => r.data),
+    api.put(`/financeiro/parcelas/${id}`).then(r => r.data),
 };

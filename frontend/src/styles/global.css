@@ -356,3 +356,93 @@
 .input-with-prefix:focus {
   @apply border-lawfy-primary ring-2 ring-lawfy-primary/10;
 }
+
+/* ============================= */
+/* PARCELAS */
+/* ============================= */
+
+.parcelas-container {
+  @apply p-0 bg-gray-50 border-b border-gray-200;
+}
+
+.parcelas-table {
+  @apply w-full text-left border-collapse;
+}
+
+.parcelas-header-cell {
+  @apply px-6 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide;
+}
+
+.parcelas-row {
+  @apply border-t border-gray-100;
+}
+
+.parcelas-cell {
+  @apply px-6 py-3 text-sm text-lawfy-text-soft;
+}
+
+/* ============================= */
+/* TIPO SELECTOR */
+/* ============================= */
+
+.processo-tipo-option {
+  @apply cursor-pointer flex-1;
+}
+
+.processo-tipo-btn {
+  @apply block w-full text-center px-4 py-2.5 rounded-lg border border-gray-200
+         text-sm font-medium text-lawfy-text-soft transition-all duration-200
+         hover:border-lawfy-primary hover:text-lawfy-primary;
+}
+
+.processo-tipo-btn-active {
+  @apply bg-lawfy-primary-soft border-lawfy-primary text-lawfy-primary font-semibold;
+}
+
+/* ============================= */
+/* INPUT LABEL */
+/* ============================= */
+
+.input-label {
+  @apply text-sm font-medium text-lawfy-text;
+}
+
+.input-error {
+  @apply border-lawfy-error ring-2 ring-lawfy-error/10;
+}
+
+.input-error-msg {
+  @apply text-xs text-lawfy-error font-medium;
+}
+
+/* ============================= */
+/* LOADING */
+/* ============================= */
+
+.loading-container {
+  @apply p-8 text-center text-lawfy-text-soft text-sm;
+}
+
+/* ============================= */
+/* EMPTY STATE */
+/* ============================= */
+
+.empty-state-row {
+  @apply p-8 text-center text-lawfy-text-soft text-sm;
+}
+
+/* ============================= */
+/* TABLE CELL */
+/* ============================= */
+
+.table-cell {
+  @apply p-4 text-sm text-lawfy-text-soft;
+}
+
+.table-cell-id {
+  @apply p-4 text-sm text-center;
+}
+
+.table-cell-secondary {
+  @apply p-4 text-sm text-lawfy-text-soft;
+}
