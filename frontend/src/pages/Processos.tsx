@@ -92,7 +92,9 @@ export function Processos() {
                       {processo.numero_processo ?? '—'}
                     </td>
                     <td className="table-cell-data">
-                      {processo.nome_partes}
+                      {processo.nome_partes.split('\n').map((nome, index) => (
+                    <span key={index} className="block">{nome}</span>
+                        ))}
                     </td>
                     <td className="table-cell-secondary">
                       {processo.clientes?.nome ?? '—'}

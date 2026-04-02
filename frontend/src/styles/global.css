@@ -306,3 +306,53 @@
 .badge-status-encerrado {
   @apply bg-red-100 text-red-600;
 }
+
+/* ============================= */
+/* BADGE TIPO PROCESSO */
+/* ============================= */
+
+.badge-tipo {
+  @apply px-2 py-0.5 text-xs font-semibold rounded-md;
+}
+
+.badge-tipo-judicial {
+  @apply bg-lawfy-primary-soft text-lawfy-primary;
+}
+
+.badge-tipo-extrajudicial {
+  @apply bg-gray-100 text-gray-500;
+}
+
+/* ============================= */
+/* TEXTAREA */
+/* ============================= */
+
+.input-textarea {
+  @apply resize-none leading-relaxed;
+}
+
+.financeiro-preview {
+  @apply flex items-center justify-between p-3 bg-lawfy-primary-soft 
+         rounded-lg border border-lawfy-primary/20;
+}
+
+/* ============================= */
+/* INPUT COM PREFIXO */
+/* ============================= */
+
+.input-prefix-wrapper {
+  @apply relative;
+}
+
+.input-prefix-symbol {
+  @apply absolute left-3 top-1/2 -translate-y-1/2 text-lawfy-text-soft text-sm;
+}
+
+.input-with-prefix {
+  @apply w-full pl-9 pr-3 py-3 bg-white border border-gray-200 rounded-lawfy
+         text-lawfy-text transition-all outline-none placeholder:text-gray-300;
+}
+
+.input-with-prefix:focus {
+  @apply border-lawfy-primary ring-2 ring-lawfy-primary/10;
+}

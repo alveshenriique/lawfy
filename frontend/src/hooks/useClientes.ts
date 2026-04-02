@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import toast from 'react-hot-toast';
 import { clientesService } from '../services/clientes';
 import type { Cliente } from '../types/cliente';
 import type { ClienteFormData } from '../lib/validations/cliente';
@@ -33,8 +34,8 @@ export function useClientes() {
       };
       await clientesService.create(cleanData);
       await loadClientes();
+      toast.success('Cliente cadastrado com sucesso!');
     } catch (err) {
-      setError('Não foi possível cadastrar o cliente.');
       console.error(err);
       throw err;
     } finally {
@@ -52,8 +53,8 @@ export function useClientes() {
       };
       await clientesService.update(id, cleanData);
       await loadClientes();
+      toast.success('Cliente atualizado com sucesso!');
     } catch (err) {
-      setError('Não foi possível atualizar o cliente.');
       console.error(err);
       throw err;
     } finally {
@@ -66,8 +67,8 @@ export function useClientes() {
       setSaving(true);
       await clientesService.remove(id);
       await loadClientes();
+      toast.success('Cliente excluído com sucesso!');
     } catch (err) {
-      setError('Não foi possível excluir o cliente.');
       console.error(err);
       throw err;
     } finally {

@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
+import toast from 'react-hot-toast';
 import { processosService } from '../services/processos';
-import { type Processo } from '../types/processo';
-import { type ProcessoFormData } from '../lib/validations/processo'; // Importe seu Schema aqui
+import type { Processo } from '../types/processo';
+import type { ProcessoFormData } from '../lib/validations/processo';
 
 export function useProcessos() {
   const [processos, setProcessos] = useState<Processo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false); // Novo estado para os Modais
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadProcessos = useCallback(async () => {
@@ -23,19 +24,20 @@ export function useProcessos() {
     }
   }, []);
 
-  useEffect(() => {
-    loadProcessos();
-  }, [loadProcessos]);
-
-  // --- Funções de Escrita (O que faltava para a página) ---
-
   async function createProcesso(data: ProcessoFormData) {
-    setSaving(true);
     try {
-      await processosService.create(data);
-      await loadProcessos(); // Atualiza a lista após criar
+      setSaving(true);
+      const cleanData = {
+        ...data,
+        numero_processo: data.numero_processo && data.numero_processo.replace(/\D/g, '').length > 0
+          ? data.numero_processo
+          : null,
+      };
+      await processosService.create(cleanData);
+      await loadProcessos();
+      toast.success('Processo cadastrado com sucesso!');
     } catch (err) {
-      setError('Erro ao criar processo.');
+      console.error(err);
       throw err;
     } finally {
       setSaving(false);
@@ -43,12 +45,19 @@ export function useProcessos() {
   }
 
   async function updateProcesso(id: number, data: ProcessoFormData) {
-    setSaving(true);
     try {
-      await processosService.update(id, data);
-      await loadProcessos(); // Atualiza a lista após editar
+      setSaving(true);
+      const cleanData = {
+        ...data,
+        numero_processo: data.numero_processo && data.numero_processo.replace(/\D/g, '').length > 0
+          ? data.numero_processo
+          : null,
+      };
+      await processosService.update(id, cleanData);
+      await loadProcessos();
+      toast.success('Processo atualizado com sucesso!');
     } catch (err) {
-      setError('Erro ao atualizar processo.');
+      console.error(err);
       throw err;
     } finally {
       setSaving(false);
@@ -56,26 +65,31 @@ export function useProcessos() {
   }
 
   async function deleteProcesso(id: number) {
-    setSaving(true);
     try {
+      setSaving(true);
       await processosService.remove(id);
       await loadProcessos();
+      toast.success('Processo excluído com sucesso!');
     } catch (err) {
-      setError('Erro ao excluir processo.');
+      console.error(err);
       throw err;
     } finally {
       setSaving(false);
     }
   }
 
-  return { 
-    processos, 
-    loading, 
-    saving, // Agora a página vai encontrar!
-    error, 
+  useEffect(() => {
+    loadProcessos();
+  }, [loadProcessos]);
+
+  return {
+    processos,
+    loading,
+    saving,
+    error,
     refresh: loadProcessos,
-    createProcesso, // Agora a página vai encontrar!
+    createProcesso,
     updateProcesso,
-    deleteProcesso
+    deleteProcesso,
   };
 }
