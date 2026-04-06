@@ -43,24 +43,23 @@ class FinanceiroController {
 
   // Parcelas ordenadas por data de vencimento — abertas primeiro, pagas depois
   async listar(req: Request, res: Response) {
-    const { data, error } = await supabase
-      .from('financeiro')
-      .select('*, parcelas(*)')
-      .order('id', { ascending: false });
+  const { data, error } = await supabase
+    .from('financeiro')
+    .select('*, parcelas(*), processos(id, numero_processo, nome_partes, clientes(id, nome))')
+    .order('id', { ascending: false });
 
-    if (error) throw new AppError(error.message, 400);
+  if (error) throw new AppError(error.message, 400);
 
-    // Ordena as parcelas de cada financeiro: abertas por vencimento, pagas por último
-    const dataOrdenada = data?.map(financeiro => ({
-      ...financeiro,
-      parcelas: (financeiro.parcelas ?? []).sort((a: any, b: any) => {
-        if (a.pago !== b.pago) return a.pago ? 1 : -1;
-        return new Date(a.data_vencimento).getTime() - new Date(b.data_vencimento).getTime();
-      })
-    }));
+  const dataOrdenada = data?.map(financeiro => ({
+    ...financeiro,
+    parcelas: (financeiro.parcelas ?? []).sort((a: any, b: any) => {
+      if (a.pago !== b.pago) return a.pago ? 1 : -1;
+      return new Date(a.data_vencimento).getTime() - new Date(b.data_vencimento).getTime();
+    })
+  }));
 
-    return res.json(dataOrdenada);
-  }
+  return res.json(dataOrdenada);
+}
 
   // Quita parcela e verifica se todas estão pagas para atualizar status do financeiro
   async quitarParcela(req: Request, res: Response) {
@@ -103,6 +102,46 @@ class FinanceiroController {
       financeiro_quitado: todasPagas
     });
   }
+
+  async editar(req: Request, res: Response) {
+  const { id } = req.params;
+  const { processo_id, tipo, valor_total, descricao, status } = req.body;
+
+  const { data, error } = await supabase
+    .from('financeiro')
+    .update({ processo_id, tipo, valor_total, descricao, status })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw new AppError(error.message, 400);
+  if (!data) throw new AppError('Registro não encontrado', 404);
+
+  return res.json({
+    message: 'Lançamento atualizado com sucesso',
+    data,
+  });
+}
+
+async editarParcela(req: Request, res: Response) {
+  const { id } = req.params;
+  const { valor_parcela, data_vencimento } = req.body;
+
+  const { data, error } = await supabase
+    .from('parcelas')
+    .update({ valor_parcela, data_vencimento })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw new AppError(error.message, 400);
+  if (!data) throw new AppError('Parcela não encontrada', 404);
+
+  return res.json({
+    message: 'Parcela atualizada com sucesso',
+    data,
+  });
+}
 
   async remover(req: Request, res: Response) {
     const { id } = req.params;

@@ -2,6 +2,7 @@ import 'express-async-errors';
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import { authRoutes } from './routes/authRoutes';
+import { dashboardRoutes } from './routes/dashboardRoutes';
 import { clienteRoutes } from './routes/clienteRoutes';
 import { processoRoutes } from './routes/processoRoutes';
 import { financeiroRoutes } from './routes/financeiroRoutes';
@@ -31,6 +32,7 @@ app.use(authMiddleware);
 app.use('/clientes', clienteRoutes);
 app.use('/processos', processoRoutes);
 app.use('/financeiro', financeiroRoutes);
+app.use('/dashboard', dashboardRoutes);
 
 // Tratamento de erros
 app.use(errorMiddleware);

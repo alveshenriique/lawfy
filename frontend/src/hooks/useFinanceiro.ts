@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { financeiroService } from '../services/financeiro';
 import type { Financeiro } from '../types/financeiro';
 import type { FinanceiroFormData } from '../lib/validations/financeiro';
+import type { ParcelaFormData } from '../lib/validations/parcela';
 
 export function useFinanceiro() {
   const [financeiros, setFinanceiros] = useState<Financeiro[]>([]);
@@ -30,6 +31,20 @@ export function useFinanceiro() {
       await financeiroService.create(data);
       await loadFinanceiro();
       toast.success('Contrato financeiro criado com sucesso!');
+    } catch (err) {
+      console.error(err);
+      throw err;
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function updateFinanceiro(id: number, data: Partial<FinanceiroFormData>) {
+    try {
+      setSaving(true);
+      await financeiroService.update(id, data);
+      await loadFinanceiro();
+      toast.success('Lançamento atualizado com sucesso!');
     } catch (err) {
       console.error(err);
       throw err;
@@ -66,6 +81,20 @@ export function useFinanceiro() {
     }
   }
 
+  async function editarParcela(id: number, data: ParcelaFormData) {
+    try {
+      setSaving(true);
+      await financeiroService.editarParcela(id, data);
+      await loadFinanceiro();
+      toast.success('Parcela atualizada com sucesso!');
+    } catch (err) {
+      console.error(err);
+      throw err;
+    } finally {
+      setSaving(false);
+    }
+  }
+
   useEffect(() => {
     loadFinanceiro();
   }, [loadFinanceiro]);
@@ -77,7 +106,9 @@ export function useFinanceiro() {
     error,
     refresh: loadFinanceiro,
     createFinanceiro,
+    updateFinanceiro,
     deleteFinanceiro,
     quitarParcela,
+    editarParcela,
   };
 }

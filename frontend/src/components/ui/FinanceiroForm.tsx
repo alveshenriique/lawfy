@@ -55,7 +55,7 @@ export function FinanceiroForm({ onSubmit, isLoading, processos, defaultValues }
               <option value="">Selecione um processo</option>
               {processos.map(processo => (
                 <option key={processo.id} value={processo.id}>
-                  {processo.numero_processo ?? processo.nome_partes}
+                  {processo.numero_processo ?? processo.clientes?.nome ?? processo.nome_partes}
                 </option>
               ))}
             </select>

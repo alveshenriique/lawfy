@@ -20,6 +20,15 @@ export interface Financeiro {
   status: FinanceiroStatus;
   user_id: string;
   parcelas?: Parcela[];
+  processos?: {
+    id: number;
+    numero_processo: string | null;
+    nome_partes: string;
+    clientes?: {
+      id: number;
+      nome: string;
+    };
+  };
 }
 
 export interface CreateFinanceiroDTO {

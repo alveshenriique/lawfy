@@ -3,23 +3,37 @@ import { Layout } from '../components/layout/Layout';
 import { Modal } from '../components/ui/Modal';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { FinanceiroForm } from '../components/ui/FinanceiroForm';
+import { ParcelaForm } from '../components/ui/ParcelaForm';
 import { useFinanceiro } from '../hooks/useFinanceiro';
 import { useProcessos } from '../hooks/useProcessos';
-import type { Financeiro } from '../types/financeiro';
+import type { Financeiro, Parcela } from '../types/financeiro';
 import type { FinanceiroFormData } from '../lib/validations/financeiro';
+import type { ParcelaFormData } from '../lib/validations/parcela';
 
 export function Financeiro() {
-  const { financeiros, loading, saving, error, createFinanceiro, deleteFinanceiro, quitarParcela } = useFinanceiro();
+  const { financeiros, loading, saving, error, createFinanceiro, updateFinanceiro, deleteFinanceiro, quitarParcela, editarParcela } = useFinanceiro();
   const { processos } = useProcessos();
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [financeiroToEdit, setFinanceiroToEdit] = useState<Financeiro | null>(null);
   const [financeiroToDelete, setFinanceiroToDelete] = useState<Financeiro | null>(null);
+  const [parcelaToEdit, setParcelaToEdit] = useState<Parcela | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
   async function handleCreateFinanceiro(data: FinanceiroFormData) {
     try {
       await createFinanceiro(data);
       setIsCreateModalOpen(false);
+    } catch {
+      // erro já tratado no hook
+    }
+  }
+
+  async function handleUpdateFinanceiro(data: FinanceiroFormData) {
+    if (!financeiroToEdit) return;
+    try {
+      await updateFinanceiro(financeiroToEdit.id, data);
+      setFinanceiroToEdit(null);
     } catch {
       // erro já tratado no hook
     }
@@ -38,6 +52,16 @@ export function Financeiro() {
   async function handleQuitarParcela(parcelaId: number) {
     try {
       await quitarParcela(parcelaId);
+    } catch {
+      // erro já tratado no hook
+    }
+  }
+
+  async function handleEditarParcela(data: ParcelaFormData) {
+    if (!parcelaToEdit) return;
+    try {
+      await editarParcela(parcelaToEdit.id, data);
+      setParcelaToEdit(null);
     } catch {
       // erro já tratado no hook
     }
@@ -72,6 +96,7 @@ export function Financeiro() {
             <thead className="table-header">
               <tr>
                 <th className="table-header-cell">Descrição</th>
+                <th className="table-header-cell">Cliente</th>
                 <th className="table-header-cell">Tipo</th>
                 <th className="table-header-cell text-right">Valor Total</th>
                 <th className="table-header-cell text-center">Parcelas</th>
@@ -85,13 +110,16 @@ export function Financeiro() {
                   <Fragment key={item.id}>
                     <tr className="table-row">
                       <td className="table-cell-main">{item.descricao}</td>
+                      <td className="table-cell-secondary">
+                        {item.processos?.clientes?.nome ?? '—'}
+                      </td>
                       <td className="table-cell-secondary capitalize">
                         {item.tipo}
                       </td>
                       <td className="table-cell-data text-right font-bold">
                         {new Intl.NumberFormat('pt-BR', {
                           style: 'currency',
-                          currency: 'BRL'
+                          currency: 'BRL',
                         }).format(item.valor_total)}
                       </td>
                       <td className="table-cell text-center">
@@ -109,6 +137,12 @@ export function Financeiro() {
                       </td>
                       <td className="table-cell-actions">
                         <button
+                          className="btn-table-edit"
+                          onClick={() => setFinanceiroToEdit(item)}
+                        >
+                          Editar
+                        </button>
+                        <button
                           className="btn-table-delete"
                           onClick={() => setFinanceiroToDelete(item)}
                         >
@@ -119,8 +153,8 @@ export function Financeiro() {
 
                     {/* Parcelas expandidas */}
                     {expandedId === item.id && item.parcelas && item.parcelas.length > 0 && (
-                      <tr key={`parcelas-${item.id}`}>
-                        <td colSpan={6} className="parcelas-container">
+                      <tr>
+                        <td colSpan={7} className="parcelas-container">
                           <table className="parcelas-table">
                             <thead>
                               <tr>
@@ -128,7 +162,7 @@ export function Financeiro() {
                                 <th className="parcelas-header-cell">Vencimento</th>
                                 <th className="parcelas-header-cell text-right">Valor</th>
                                 <th className="parcelas-header-cell text-center">Status</th>
-                                <th className="parcelas-header-cell text-center">Ação</th>
+                                <th className="parcelas-header-cell text-center">Ações</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -143,7 +177,7 @@ export function Financeiro() {
                                   <td className="parcelas-cell text-right">
                                     {new Intl.NumberFormat('pt-BR', {
                                       style: 'currency',
-                                      currency: 'BRL'
+                                      currency: 'BRL',
                                     }).format(parcela.valor_parcela)}
                                   </td>
                                   <td className="parcelas-cell text-center">
@@ -158,15 +192,26 @@ export function Financeiro() {
                                     )}
                                   </td>
                                   <td className="parcelas-cell text-center">
-                                    {!parcela.pago && (
-                                      <button
-                                        className="btn-table-edit"
-                                        onClick={() => handleQuitarParcela(parcela.id)}
-                                        disabled={saving}
-                                      >
-                                        Quitar
-                                      </button>
-                                    )}
+                                    <div className="flex items-center justify-center gap-2">
+                                      {!parcela.pago && (
+                                        <>
+                                          <button
+                                            className="btn-table-edit"
+                                            onClick={() => setParcelaToEdit(parcela)}
+                                            disabled={saving}
+                                          >
+                                            Editar
+                                          </button>
+                                          <button
+                                            className="btn-table-edit"
+                                            onClick={() => handleQuitarParcela(parcela.id)}
+                                            disabled={saving}
+                                          >
+                                            Quitar
+                                          </button>
+                                        </>
+                                      )}
+                                    </div>
                                   </td>
                                 </tr>
                               ))}
@@ -180,7 +225,7 @@ export function Financeiro() {
               ) : (
                 !error && (
                   <tr>
-                    <td colSpan={6} className="empty-state-row">
+                    <td colSpan={7} className="empty-state-row">
                       Nenhum registro financeiro encontrado.
                     </td>
                   </tr>
@@ -191,6 +236,7 @@ export function Financeiro() {
         )}
       </section>
 
+      {/* Modal: Novo Lançamento */}
       <Modal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
@@ -203,6 +249,34 @@ export function Financeiro() {
         />
       </Modal>
 
+      {/* Modal: Editar Lançamento */}
+      <Modal
+        isOpen={!!financeiroToEdit}
+        onClose={() => setFinanceiroToEdit(null)}
+        title="Editar Lançamento"
+      >
+        <FinanceiroForm
+          onSubmit={handleUpdateFinanceiro}
+          isLoading={saving}
+          processos={processos}
+          defaultValues={financeiroToEdit ?? undefined}
+        />
+      </Modal>
+
+      {/* Modal: Editar Parcela */}
+      <Modal
+        isOpen={!!parcelaToEdit}
+        onClose={() => setParcelaToEdit(null)}
+        title="Editar Parcela"
+      >
+        <ParcelaForm
+          onSubmit={handleEditarParcela}
+          isLoading={saving}
+          defaultValues={parcelaToEdit ?? undefined}
+        />
+      </Modal>
+
+      {/* Modal: Confirmar Exclusão */}
       <ConfirmModal
         isOpen={!!financeiroToDelete}
         onClose={() => setFinanceiroToDelete(null)}

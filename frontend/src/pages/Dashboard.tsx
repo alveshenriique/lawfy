@@ -1,18 +1,13 @@
 import { Layout } from '../components/layout/Layout';
 import { useAuth } from '../hooks/useAuth';
+import { useDashboard } from '../hooks/useDashboard';
 
-/**
- * Dashboard (Camada de Composição).
- * * Responsabilidade Única: Orquestrar a exibição dos indicadores de negócio.
- * Estilização: 100% delegada às classes de utilidade do global.css.
- * Lógica: Consome dados do hook useAuth.
- */
 export function Dashboard() {
   const { user } = useAuth();
+  const { resumo, loading } = useDashboard();
 
   return (
     <Layout>
-      {/* Cabeçalho da Página */}
       <header className="dashboard-header">
         <h2 className="page-title">
           Olá, Dr. {user?.nome || 'Advogado'}
@@ -22,34 +17,55 @@ export function Dashboard() {
         </p>
       </header>
 
-      {/* Grade de Indicadores Financeiros/Processuais */}
       <section className="stats-grid">
-        {/* Card: Processos */}
-        <article className="stat-card">
-          <p className="stat-label">Processos Ativos</p>
-          <h4 className="stat-value">24</h4>
-          <span className="stat-indicator text-lawfy-success">
-            +3 desde o último mês
-          </span>
-        </article>
-
-        {/* Card: Prazos */}
-        <article className="stat-card">
-          <p className="stat-label">Prazos Próximos</p>
-          <h4 className="stat-value text-lawfy-error">08</h4>
-          <span className="stat-indicator text-gray-400">
-            Verificar agenda hoje
-          </span>
-        </article>
 
         {/* Card: Clientes */}
         <article className="stat-card">
           <p className="stat-label">Clientes Cadastrados</p>
-          <h4 className="stat-value text-gray-800">112</h4>
-          <span className="stat-indicator text-lawfy-primary">
-            Painel Gerencial Lawfy
+          <h4 className="stat-value">
+            {loading ? '...' : resumo?.totalClientes ?? 0}
+          </h4>
+          <span className="stat-indicator text-lawfy-text-soft">
+            Total na base
           </span>
         </article>
+
+        {/* Card: Processos Ativos */}
+        <article className="stat-card">
+          <p className="stat-label">Processos Ativos</p>
+          <h4 className="stat-value">
+            {loading ? '...' : resumo?.processosAtivos ?? 0}
+          </h4>
+          <span className="stat-indicator text-lawfy-text-soft">
+            {loading ? '...' : `${resumo?.totalProcessos ?? 0} processos no total`}
+          </span>
+        </article>
+
+        {/* Card: Parcelas Vencendo */}
+        <article className="stat-card">
+          <p className="stat-label">Parcelas Vencendo</p>
+          <h4 className={`stat-value ${(resumo?.parcelasVencendo ?? 0) > 0 ? 'text-lawfy-error' : ''}`}>
+            {loading ? '...' : resumo?.parcelasVencendo ?? 0}
+          </h4>
+          <span className="stat-indicator text-lawfy-text-soft">
+            Próximos 30 dias
+          </span>
+        </article>
+
+        {/* Card: Valor a Receber */}
+        <article className="stat-card">
+          <p className="stat-label">Valor a Receber</p>
+          <h4 className="stat-value text-lawfy-success">
+            {loading ? '...' : new Intl.NumberFormat('pt-BR', {
+              style: 'currency',
+              currency: 'BRL',
+            }).format(resumo?.valorAReceber ?? 0)}
+          </h4>
+          <span className="stat-indicator text-lawfy-text-soft">
+            Parcelas pendentes
+          </span>
+        </article>
+
       </section>
     </Layout>
   );
