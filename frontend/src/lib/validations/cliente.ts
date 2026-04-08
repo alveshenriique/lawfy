@@ -11,6 +11,13 @@ export const clienteSchema = z.object({
     .min(10, "Telefone inválido")
     .optional()
     .or(z.literal('')),
+  cep: z.string().optional().or(z.literal('')),
+  logradouro: z.string().optional().or(z.literal('')),
+  numero: z.string().optional().or(z.literal('')),
+  complemento: z.string().optional().or(z.literal('')),
+  bairro: z.string().optional().or(z.literal('')),
+  cidade: z.string().optional().or(z.literal('')),
+  estado: z.string().max(2).optional().or(z.literal('')),
 });
 
 export type ClienteFormData = z.infer<typeof clienteSchema>;

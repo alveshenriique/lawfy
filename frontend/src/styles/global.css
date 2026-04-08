@@ -1,40 +1,30 @@
 @import "tailwindcss";
 
 @theme {
-  /* 🎨 PALETA LAWFY (REFINADA) */
   --color-lawfy-primary: #294f62;
   --color-lawfy-primary-light: #3b6b80;
   --color-lawfy-primary-soft: #e6eef2;
-
   --color-lawfy-accent: #1f3a4a;
-
   --color-lawfy-bg: #f5f7fa;
   --color-lawfy-surface: #ffffff;
-
   --color-lawfy-text: #0f172a;
   --color-lawfy-text-soft: #64748b;
-
   --color-lawfy-success: #10b981;
   --color-lawfy-error: #ef4444;
-
   --radius-lawfy: 0.75rem;
 }
 
-.confirm-modal-actions {
-  @apply flex gap-3 justify-end;
-}
-
 /* ============================= */
-/* 1. BASE (ATOMIC UI) */
+/* 1. BASE */
 /* ============================= */
 
 .btn-base {
-  @apply w-full p-3 rounded-lawfy font-semibold transition-all flex items-center 
+  @apply w-full p-3 rounded-lawfy font-semibold transition-all flex items-center
          justify-center shadow-sm disabled:opacity-50 disabled:cursor-not-allowed text-sm;
 }
 
 .input-base {
-  @apply w-full p-3 bg-white border border-gray-200 rounded-lawfy 
+  @apply w-full p-3 bg-white border border-gray-200 rounded-lawfy
          text-lawfy-text transition-all outline-none placeholder:text-gray-300;
 }
 
@@ -47,21 +37,79 @@
 /* ============================= */
 
 .btn-primary {
-  @apply bg-lawfy-primary text-white 
-         hover:bg-lawfy-primary-light 
-         active:scale-[0.97]
-         transition-all duration-200
-         shadow-md;
+  @apply bg-lawfy-primary text-white hover:bg-lawfy-primary-light
+         active:scale-[0.97] transition-all duration-200 shadow-md;
+}
+
+.btn-secondary {
+  @apply bg-gray-100 text-lawfy-text hover:bg-gray-200
+         active:scale-[0.97] transition-all duration-200;
+}
+
+.btn-danger {
+  @apply bg-red-500 text-white hover:bg-red-600
+         active:scale-[0.97] transition-all duration-200 shadow-md;
 }
 
 .btn-new-entity {
-  @apply w-auto px-5 py-2.5 bg-lawfy-primary text-white rounded-lawfy font-semibold 
-         transition-all flex items-center justify-center shadow-md 
+  @apply w-auto px-5 py-2.5 bg-lawfy-primary text-white rounded-lawfy font-semibold
+         transition-all flex items-center justify-center shadow-md
          hover:bg-lawfy-primary-light active:scale-[0.97];
 }
 
+.btn-table-edit {
+  @apply px-3 py-1.5 text-xs font-semibold rounded-lg
+         bg-lawfy-primary-soft text-lawfy-primary
+         hover:bg-lawfy-primary hover:text-white
+         transition-all duration-200;
+}
+
+.btn-table-delete {
+  @apply px-3 py-1.5 text-xs font-semibold rounded-lg
+         bg-red-50 text-red-500
+         hover:bg-red-500 hover:text-white
+         transition-all duration-200;
+}
+
 /* ============================= */
-/* 3. LAYOUT */
+/* 3. INPUTS */
+/* ============================= */
+
+.input-label {
+  @apply text-sm font-medium text-lawfy-text;
+}
+
+.input-error {
+  @apply border-lawfy-error ring-2 ring-lawfy-error/10;
+}
+
+.input-error-msg {
+  @apply text-xs text-lawfy-error font-medium;
+}
+
+.input-textarea {
+  @apply resize-none leading-relaxed;
+}
+
+.input-prefix-wrapper {
+  @apply relative;
+}
+
+.input-prefix-symbol {
+  @apply absolute left-3 top-1/2 -translate-y-1/2 text-lawfy-text-soft text-sm;
+}
+
+.input-with-prefix {
+  @apply w-full pl-9 pr-3 py-3 bg-white border border-gray-200 rounded-lawfy
+         text-lawfy-text transition-all outline-none placeholder:text-gray-300;
+}
+
+.input-with-prefix:focus {
+  @apply border-lawfy-primary ring-2 ring-lawfy-primary/10;
+}
+
+/* ============================= */
+/* 4. LAYOUT */
 /* ============================= */
 
 .dashboard-wrapper {
@@ -80,8 +128,16 @@
   @apply flex justify-between items-center mb-6 pb-4 border-b border-gray-200;
 }
 
+.page-title {
+  @apply text-2xl font-bold text-lawfy-text;
+}
+
+.page-subtitle {
+  @apply text-lawfy-text-soft text-sm mt-1;
+}
+
 /* ============================= */
-/* 4. SIDEBAR */
+/* 5. SIDEBAR */
 /* ============================= */
 
 .sidebar-container {
@@ -93,7 +149,7 @@
 }
 
 .nav-link {
-  @apply flex items-center gap-3 px-4 py-3 rounded-lg 
+  @apply flex items-center gap-3 px-4 py-3 rounded-lg
          text-white/70 font-medium transition-all;
 }
 
@@ -106,31 +162,32 @@
 }
 
 /* ============================= */
-/* 5. TIPOGRAFIA */
+/* 6. DASHBOARD */
 /* ============================= */
 
-.page-title {
-  @apply text-2xl font-bold text-lawfy-text;
+.dashboard-header {
+  @apply mb-8;
 }
 
-.page-subtitle {
-  @apply text-lawfy-text-soft text-sm mt-1;
+.stats-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
 }
-
-/* ============================= */
-/* 6. CARDS (DASHBOARD) */
-/* ============================= */
 
 .stat-card {
-  @apply bg-white p-5 rounded-xl border border-gray-100 shadow-sm;
+  @apply bg-white p-6 rounded-xl border border-gray-200 shadow-sm
+         transition-all hover:shadow-md;
 }
 
-.stat-title {
-  @apply text-sm text-lawfy-text-soft;
+.stat-label {
+  @apply text-sm text-lawfy-text-soft mb-2;
 }
 
 .stat-value {
   @apply text-2xl font-bold text-lawfy-text;
+}
+
+.stat-indicator {
+  @apply text-sm mt-2 block;
 }
 
 /* ============================= */
@@ -161,70 +218,88 @@
   @apply bg-gray-50;
 }
 
+.table-cell {
+  @apply p-4 text-sm text-lawfy-text-soft;
+}
+
 .table-cell-main {
   @apply p-4 text-sm font-medium text-lawfy-text;
+}
+
+.table-cell-secondary {
+  @apply p-4 text-sm text-lawfy-text-soft;
 }
 
 .table-cell-data {
   @apply p-4 text-sm text-lawfy-text-soft;
 }
 
+.table-cell-id {
+  @apply p-4 text-sm text-center;
+}
+
+.table-cell-actions {
+  @apply p-4 text-sm flex items-center justify-center gap-2;
+}
+
+.loading-container {
+  @apply p-8 text-center text-lawfy-text-soft text-sm;
+}
+
+.empty-state-row {
+  @apply p-8 text-center text-lawfy-text-soft text-sm;
+}
+
+/* ============================= */
+/* 8. BADGES */
+/* ============================= */
+
 .badge-id {
   @apply px-2 py-1 bg-gray-100 text-gray-500 text-xs font-bold rounded-md uppercase;
 }
 
-/* ============================= */
-/* 8. ALERTAS */
-/* ============================= */
+.badge-status-processo {
+  @apply px-2 py-1 text-xs font-bold rounded-md;
+}
 
-.alert-error {
-  @apply bg-red-50 text-lawfy-error p-4 rounded-lawfy mb-6 font-semibold text-sm border border-red-100 flex items-center gap-2;
+.badge-status-ativo {
+  @apply bg-green-100 text-green-700;
+}
+
+.badge-status-arquivado {
+  @apply bg-gray-100 text-gray-600;
+}
+
+.badge-status-encerrado {
+  @apply bg-red-100 text-red-600;
+}
+
+.badge-status-pendente {
+  @apply bg-yellow-100 text-yellow-700;
+}
+
+.badge-status-pago {
+  @apply bg-green-100 text-green-700;
+}
+
+.badge-status-cancelado {
+  @apply bg-red-100 text-red-600;
+}
+
+.badge-tipo {
+  @apply px-2 py-0.5 text-xs font-semibold rounded-md;
+}
+
+.badge-tipo-judicial {
+  @apply bg-lawfy-primary-soft text-lawfy-primary;
+}
+
+.badge-tipo-extrajudicial {
+  @apply bg-gray-100 text-gray-500;
 }
 
 /* ============================= */
-/* 9. LOGIN */
-/* ============================= */
-
-.auth-page-container {
-  @apply min-h-screen flex items-center justify-center 
-         bg-gradient-to-br from-lawfy-primary to-lawfy-accent p-6;
-}
-
-.auth-card {
-  @apply bg-white p-8 rounded-2xl shadow-xl w-full max-w-md;
-}
-
-/* ============================= */
-/* DASHBOARD */
-/* ============================= */
-
-.dashboard-header {
-  @apply mb-8;
-}
-
-.stats-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
-}
-
-.stat-card {
-  @apply bg-white p-6 rounded-xl border border-gray-200 shadow-sm 
-         transition-all hover:shadow-md;
-}
-
-.stat-label {
-  @apply text-sm text-lawfy-text-soft mb-2;
-}
-
-.stat-value {
-  @apply text-2xl font-bold text-lawfy-text;
-}
-
-.stat-indicator {
-  @apply text-sm mt-2 block;
-}
-
-/* ============================= */
-/* MODAL */
+/* 9. MODAL */
 /* ============================= */
 
 .modal-overlay {
@@ -251,114 +326,116 @@
   @apply p-6;
 }
 
-/* ============================= */
-/* BOTÕES SECUNDÁRIO E DANGER */
-/* ============================= */
-
-.btn-secondary {
-  @apply bg-gray-100 text-lawfy-text hover:bg-gray-200
-         active:scale-[0.97] transition-all duration-200;
-}
-
-.btn-danger {
-  @apply bg-red-500 text-white hover:bg-red-600
-         active:scale-[0.97] transition-all duration-200 shadow-md;
+.confirm-modal-actions {
+  @apply flex gap-3 justify-end;
 }
 
 /* ============================= */
-/* AÇÕES DA TABELA */
+/* 10. ALERTAS */
 /* ============================= */
 
-.table-cell-actions {
-  @apply p-4 text-sm flex items-center justify-center gap-2;
-}
-
-.btn-table-edit {
-  @apply px-3 py-1.5 text-xs font-semibold rounded-lg
-         bg-lawfy-primary-soft text-lawfy-primary
-         hover:bg-lawfy-primary hover:text-white
-         transition-all duration-200;
-}
-
-.btn-table-delete {
-  @apply px-3 py-1.5 text-xs font-semibold rounded-lg
-         bg-red-50 text-red-500
-         hover:bg-red-500 hover:text-white
-         transition-all duration-200;
+.alert-error {
+  @apply bg-red-50 text-lawfy-error p-4 rounded-lawfy mb-6 font-semibold text-sm
+         border border-red-100 flex items-center gap-2;
 }
 
 /* ============================= */
-/* BADGE STATUS PROCESSO */
+/* 11. LOGIN */
 /* ============================= */
 
-.badge-status-processo {
-  @apply px-2 py-1 text-xs font-bold rounded-md;
+.auth-page-container {
+  @apply min-h-screen flex items-center justify-center
+         bg-linear-to-br from-lawfy-primary to-lawfy-accent p-6;
 }
 
-.badge-status-ativo {
-  @apply bg-green-100 text-green-700;
-}
-
-.badge-status-arquivado {
-  @apply bg-gray-100 text-gray-600;
-}
-
-.badge-status-encerrado {
-  @apply bg-red-100 text-red-600;
+.auth-card {
+  @apply bg-white p-8 rounded-2xl shadow-xl w-full max-w-md;
 }
 
 /* ============================= */
-/* BADGE TIPO PROCESSO */
+/* 12. BUSCA E FILTROS */
 /* ============================= */
 
-.badge-tipo {
-  @apply px-2 py-0.5 text-xs font-semibold rounded-md;
+.search-bar {
+  @apply flex items-center gap-4 mb-4;
 }
 
-.badge-tipo-judicial {
-  @apply bg-lawfy-primary-soft text-lawfy-primary;
+.search-input {
+  @apply flex-1 p-3 bg-white border border-gray-200 rounded-lawfy
+         text-lawfy-text outline-none placeholder:text-gray-300 transition-all;
 }
 
-.badge-tipo-extrajudicial {
-  @apply bg-gray-100 text-gray-500;
-}
-
-/* ============================= */
-/* TEXTAREA */
-/* ============================= */
-
-.input-textarea {
-  @apply resize-none leading-relaxed;
-}
-
-.financeiro-preview {
-  @apply flex items-center justify-between p-3 bg-lawfy-primary-soft 
-         rounded-lg border border-lawfy-primary/20;
-}
-
-/* ============================= */
-/* INPUT COM PREFIXO */
-/* ============================= */
-
-.input-prefix-wrapper {
-  @apply relative;
-}
-
-.input-prefix-symbol {
-  @apply absolute left-3 top-1/2 -translate-y-1/2 text-lawfy-text-soft text-sm;
-}
-
-.input-with-prefix {
-  @apply w-full pl-9 pr-3 py-3 bg-white border border-gray-200 rounded-lawfy
-         text-lawfy-text transition-all outline-none placeholder:text-gray-300;
-}
-
-.input-with-prefix:focus {
+.search-input:focus {
   @apply border-lawfy-primary ring-2 ring-lawfy-primary/10;
 }
 
+.search-filter {
+  @apply p-3 bg-white border border-gray-200 rounded-lawfy
+         text-lawfy-text outline-none transition-all cursor-pointer;
+}
+
+.search-filter:focus {
+  @apply border-lawfy-primary ring-2 ring-lawfy-primary/10;
+}
+
+.search-results {
+  @apply text-sm text-lawfy-text-soft whitespace-nowrap;
+}
+
 /* ============================= */
-/* PARCELAS */
+/* 13. FORM LAYOUT */
+/* ============================= */
+
+.form-section-divider {
+  @apply flex items-center gap-3 my-1;
+}
+
+.form-section-divider::before,
+.form-section-divider::after {
+  content: '';
+  @apply flex-1 h-px bg-gray-200;
+}
+
+.form-section-label {
+  @apply text-xs font-semibold text-lawfy-text-soft uppercase tracking-wide;
+}
+
+.form-row {
+  @apply flex gap-3;
+}
+
+.form-col-grow {
+  @apply flex-1;
+}
+
+.form-col-small {
+  @apply w-24;
+}
+
+.form-col-estado {
+  @apply w-20;
+}
+
+/* ============================= */
+/* 14. TIPO SELECTOR */
+/* ============================= */
+
+.processo-tipo-option {
+  @apply cursor-pointer flex-1;
+}
+
+.processo-tipo-btn {
+  @apply block w-full text-center px-4 py-2.5 rounded-lg border border-gray-200
+         text-sm font-medium text-lawfy-text-soft transition-all duration-200
+         hover:border-lawfy-primary hover:text-lawfy-primary;
+}
+
+.processo-tipo-btn-active {
+  @apply bg-lawfy-primary-soft border-lawfy-primary text-lawfy-primary font-semibold;
+}
+
+/* ============================= */
+/* 15. PARCELAS */
 /* ============================= */
 
 .parcelas-container {
@@ -382,67 +459,34 @@
 }
 
 /* ============================= */
-/* TIPO SELECTOR */
+/* 16. FINANCEIRO */
 /* ============================= */
 
-.processo-tipo-option {
-  @apply cursor-pointer flex-1;
-}
-
-.processo-tipo-btn {
-  @apply block w-full text-center px-4 py-2.5 rounded-lg border border-gray-200
-         text-sm font-medium text-lawfy-text-soft transition-all duration-200
-         hover:border-lawfy-primary hover:text-lawfy-primary;
-}
-
-.processo-tipo-btn-active {
-  @apply bg-lawfy-primary-soft border-lawfy-primary text-lawfy-primary font-semibold;
+.financeiro-preview {
+  @apply flex items-center justify-between p-3 bg-lawfy-primary-soft
+         rounded-lg border border-lawfy-primary/20;
 }
 
 /* ============================= */
-/* INPUT LABEL */
+/* 17. CLIENTE DETALHES */
 /* ============================= */
 
-.input-label {
-  @apply text-sm font-medium text-lawfy-text;
+.cliente-nome-btn {
+  @apply text-lawfy-primary font-medium hover:underline cursor-pointer text-left;
 }
 
-.input-error {
-  @apply border-lawfy-error ring-2 ring-lawfy-error/10;
+.cliente-detalhes {
+  @apply flex flex-col gap-3;
 }
 
-.input-error-msg {
-  @apply text-xs text-lawfy-error font-medium;
+.cliente-detalhe-grupo {
+  @apply flex flex-col gap-0.5;
 }
 
-/* ============================= */
-/* LOADING */
-/* ============================= */
-
-.loading-container {
-  @apply p-8 text-center text-lawfy-text-soft text-sm;
+.cliente-detalhe-label {
+  @apply text-xs font-semibold text-lawfy-text-soft uppercase tracking-wide;
 }
 
-/* ============================= */
-/* EMPTY STATE */
-/* ============================= */
-
-.empty-state-row {
-  @apply p-8 text-center text-lawfy-text-soft text-sm;
-}
-
-/* ============================= */
-/* TABLE CELL */
-/* ============================= */
-
-.table-cell {
-  @apply p-4 text-sm text-lawfy-text-soft;
-}
-
-.table-cell-id {
-  @apply p-4 text-sm text-center;
-}
-
-.table-cell-secondary {
-  @apply p-4 text-sm text-lawfy-text-soft;
+.cliente-detalhe-valor {
+  @apply text-sm text-lawfy-text;
 }

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { Button } from '../components/ui/Button';
 import { Layout } from '../components/layout/Layout';
 import { Modal } from '../components/ui/Modal';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
@@ -14,6 +15,17 @@ export function Clientes() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [clienteToEdit, setClienteToEdit] = useState<Cliente | null>(null);
   const [clienteToDelete, setClienteToDelete] = useState<Cliente | null>(null);
+  const [clienteToView, setClienteToView] = useState<Cliente | null>(null);
+  const [search, setSearch] = useState('');
+
+  const clientesFiltrados = useMemo(() => {
+    if (!search.trim()) return clientes;
+    const termo = search.toLowerCase().replace(/\D/g, '') || search.toLowerCase();
+    return clientes.filter(cliente =>
+      cliente.nome.toLowerCase().includes(search.toLowerCase()) ||
+      cliente.cpf_cnpj.replace(/\D/g, '').includes(termo)
+    );
+  }, [clientes, search]);
 
   async function handleCreateCliente(data: ClienteFormData) {
     try {
@@ -44,6 +56,19 @@ export function Clientes() {
     }
   }
 
+  function formatEndereco(cliente: Cliente) {
+    const partes = [
+      cliente.logradouro,
+      cliente.numero && `nº ${cliente.numero}`,
+      cliente.complemento,
+      cliente.bairro,
+      cliente.cidade,
+      cliente.estado,
+    ].filter(Boolean);
+
+    return partes.length > 0 ? partes.join(', ') : null;
+  }
+
   return (
     <Layout>
       <header className="page-header-actions">
@@ -63,6 +88,21 @@ export function Clientes() {
         </div>
       )}
 
+      <div className="search-bar">
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Buscar por nome ou CPF/CNPJ..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+        {search && (
+          <span className="search-results">
+            {clientesFiltrados.length} resultado{clientesFiltrados.length !== 1 ? 's' : ''}
+          </span>
+        )}
+      </div>
+
       <section className="table-container">
         {loading ? (
           <div className="loading-container">
@@ -79,9 +119,16 @@ export function Clientes() {
               </tr>
             </thead>
             <tbody>
-              {clientes.map((cliente) => (
+              {clientesFiltrados.map((cliente) => (
                 <tr key={cliente.id} className="table-row">
-                  <td className="table-cell-main">{cliente.nome}</td>
+                  <td className="table-cell-main">
+                    <button
+                      className="cliente-nome-btn"
+                      onClick={() => setClienteToView(cliente)}
+                    >
+                      {cliente.nome}
+                    </button>
+                  </td>
                   <td className="table-cell-secondary">
                     {formatCpfCnpj(cliente.cpf_cnpj)}
                   </td>
@@ -105,10 +152,10 @@ export function Clientes() {
                 </tr>
               ))}
 
-              {clientes.length === 0 && !error && (
+              {clientesFiltrados.length === 0 && !error && (
                 <tr>
                   <td colSpan={4} className="empty-state-row">
-                    Nenhum cliente cadastrado em sua base.
+                    {search ? 'Nenhum cliente encontrado para essa busca.' : 'Nenhum cliente cadastrado em sua base.'}
                   </td>
                 </tr>
               )}
@@ -116,6 +163,90 @@ export function Clientes() {
           </table>
         )}
       </section>
+
+      {/* Modal: Detalhes do Cliente */}
+      <Modal
+        isOpen={!!clienteToView}
+        onClose={() => setClienteToView(null)}
+        title="Detalhes do Cliente"
+      >
+        {clienteToView && (
+          <div className="cliente-detalhes">
+            <div className="cliente-detalhe-grupo">
+              <span className="cliente-detalhe-label">Nome / Razão Social</span>
+              <span className="cliente-detalhe-valor">{clienteToView.nome}</span>
+            </div>
+            <div className="cliente-detalhe-grupo">
+              <span className="cliente-detalhe-label">CPF / CNPJ</span>
+              <span className="cliente-detalhe-valor">{formatCpfCnpj(clienteToView.cpf_cnpj)}</span>
+            </div>
+            {clienteToView.telefone && (
+              <div className="cliente-detalhe-grupo">
+                <span className="cliente-detalhe-label">Telefone</span>
+                <span className="cliente-detalhe-valor">{formatTelefone(clienteToView.telefone)}</span>
+              </div>
+            )}
+
+            {/* Endereço */}
+            {formatEndereco(clienteToView) && (
+              <>
+                <div className="form-section-divider">
+                  <span className="form-section-label">Endereço</span>
+                </div>
+                {clienteToView.cep && (
+                  <div className="cliente-detalhe-grupo">
+                    <span className="cliente-detalhe-label">CEP</span>
+                    <span className="cliente-detalhe-valor">{clienteToView.cep}</span>
+                  </div>
+                )}
+                {clienteToView.logradouro && (
+                  <div className="cliente-detalhe-grupo">
+                    <span className="cliente-detalhe-label">Logradouro</span>
+                    <span className="cliente-detalhe-valor">
+                      {clienteToView.logradouro}
+                      {clienteToView.numero && `, nº ${clienteToView.numero}`}
+                      {clienteToView.complemento && ` — ${clienteToView.complemento}`}
+                    </span>
+                  </div>
+                )}
+                {clienteToView.bairro && (
+                  <div className="cliente-detalhe-grupo">
+                    <span className="cliente-detalhe-label">Bairro</span>
+                    <span className="cliente-detalhe-valor">{clienteToView.bairro}</span>
+                  </div>
+                )}
+                {clienteToView.cidade && (
+                  <div className="cliente-detalhe-grupo">
+                    <span className="cliente-detalhe-label">Cidade / Estado</span>
+                    <span className="cliente-detalhe-valor">
+                      {clienteToView.cidade}{clienteToView.estado && ` — ${clienteToView.estado}`}
+                    </span>
+                  </div>
+                )}
+              </>
+            )}
+
+            {!formatEndereco(clienteToView) && (
+              <p className="text-sm text-lawfy-text-soft text-center py-2">
+                Endereço não cadastrado.
+              </p>
+            )}
+
+            <div className="pt-4 flex gap-3 justify-end">
+              <Button
+                variant="secondary"
+                fullWidth={false}
+                onClick={() => {
+                  setClienteToView(null);
+                  setClienteToEdit(clienteToView);
+                }}
+              >
+                Editar cliente
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       {/* Modal: Novo Cliente */}
       <Modal

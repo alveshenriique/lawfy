@@ -44,23 +44,26 @@ export function useClientes() {
   }
 
   async function updateCliente(id: number, data: ClienteFormData) {
-    try {
-      setSaving(true);
-      const cleanData = {
-        ...data,
-        cpf_cnpj: data.cpf_cnpj.replace(/\D/g, ''),
-        telefone: data.telefone ? data.telefone.replace(/\D/g, '') : undefined,
-      };
-      await clientesService.update(id, cleanData);
-      await loadClientes();
-      toast.success('Cliente atualizado com sucesso!');
-    } catch (err) {
-      console.error(err);
-      throw err;
-    } finally {
-      setSaving(false);
-    }
+  try {
+    setSaving(true);
+    const cleanData = {
+      ...data,
+      cpf_cnpj: data.cpf_cnpj.replace(/\D/g, ''),
+      telefone: data.telefone && data.telefone.replace(/\D/g, '').length > 0
+        ? data.telefone.replace(/\D/g, '')
+        : null,
+      cep: data.cep || null,
+    };
+    await clientesService.update(id, cleanData);
+    await loadClientes();
+    toast.success('Cliente atualizado com sucesso!');
+  } catch (err) {
+    console.error(err);
+    throw err;
+  } finally {
+    setSaving(false);
   }
+}
 
   async function deleteCliente(id: number) {
     try {

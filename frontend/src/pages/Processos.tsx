@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Layout } from '../components/layout/Layout';
 import { Modal } from '../components/ui/Modal';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
@@ -15,6 +15,21 @@ export function Processos() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [processoToEdit, setProcessoToEdit] = useState<Processo | null>(null);
   const [processoToDelete, setProcessoToDelete] = useState<Processo | null>(null);
+  const [search, setSearch] = useState('');
+  const [filtroStatus, setFiltroStatus] = useState('');
+
+  const processosFiltrados = useMemo(() => {
+    return processos.filter(processo => {
+      const matchSearch = !search.trim() ||
+        processo.nome_partes.toLowerCase().includes(search.toLowerCase()) ||
+        processo.clientes?.nome.toLowerCase().includes(search.toLowerCase()) ||
+        (processo.numero_processo ?? '').toLowerCase().includes(search.toLowerCase());
+
+      const matchStatus = !filtroStatus || processo.status === filtroStatus;
+
+      return matchSearch && matchStatus;
+    });
+  }, [processos, search, filtroStatus]);
 
   async function handleCreateProcesso(data: ProcessoFormData) {
     try {
@@ -64,6 +79,32 @@ export function Processos() {
         </div>
       )}
 
+      {/* Busca e filtros */}
+      <div className="search-bar">
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Buscar por nº do processo, partes ou cliente..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+        <select
+          className="search-filter"
+          value={filtroStatus}
+          onChange={e => setFiltroStatus(e.target.value)}
+        >
+          <option value="">Todos os status</option>
+          <option value="ativo">Ativo</option>
+          <option value="arquivado">Arquivado</option>
+          <option value="encerrado">Encerrado</option>
+        </select>
+        {(search || filtroStatus) && (
+          <span className="search-results">
+            {processosFiltrados.length} resultado{processosFiltrados.length !== 1 ? 's' : ''}
+          </span>
+        )}
+      </div>
+
       <section className="table-container">
         {loading ? (
           <div className="loading-container">
@@ -82,8 +123,8 @@ export function Processos() {
               </tr>
             </thead>
             <tbody>
-              {processos.length > 0 ? (
-                processos.map((processo) => (
+              {processosFiltrados.length > 0 ? (
+                processosFiltrados.map((processo) => (
                   <tr key={processo.id} className="table-row">
                     <td className="table-cell-secondary capitalize">
                       {processo.tipo}
@@ -93,8 +134,8 @@ export function Processos() {
                     </td>
                     <td className="table-cell-data">
                       {processo.nome_partes.split('\n').map((nome, index) => (
-                    <span key={index} className="block">{nome}</span>
-                        ))}
+                        <span key={index} className="block">{nome}</span>
+                      ))}
                     </td>
                     <td className="table-cell-secondary">
                       {processo.clientes?.nome ?? '—'}
@@ -121,13 +162,11 @@ export function Processos() {
                   </tr>
                 ))
               ) : (
-                !error && (
-                  <tr>
-                    <td colSpan={6} className="empty-state-row">
-                      Nenhum processo encontrado.
-                    </td>
-                  </tr>
-                )
+                <tr>
+                  <td colSpan={6} className="empty-state-row">
+                    {search || filtroStatus ? 'Nenhum processo encontrado para esse filtro.' : 'Nenhum processo encontrado.'}
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
