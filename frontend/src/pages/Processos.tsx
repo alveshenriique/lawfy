@@ -35,9 +35,7 @@ export function Processos() {
     try {
       await createProcesso(data);
       setIsCreateModalOpen(false);
-    } catch {
-      // erro já tratado no hook
-    }
+    } catch { /* erro tratado no hook */ }
   }
 
   async function handleUpdateProcesso(data: ProcessoFormData) {
@@ -45,9 +43,7 @@ export function Processos() {
     try {
       await updateProcesso(processoToEdit.id, data);
       setProcessoToEdit(null);
-    } catch {
-      // erro já tratado no hook
-    }
+    } catch { /* erro tratado no hook */ }
   }
 
   async function handleDeleteProcesso() {
@@ -55,9 +51,7 @@ export function Processos() {
     try {
       await deleteProcesso(processoToDelete.id);
       setProcessoToDelete(null);
-    } catch {
-      // erro já tratado no hook
-    }
+    } catch { /* erro tratado no hook */ }
   }
 
   return (
@@ -73,43 +67,43 @@ export function Processos() {
         </button>
       </header>
 
-      {error && (
-        <div className="alert-error">
-          {error}
-        </div>
-      )}
+      {error && <div className="alert-error">{error}</div>}
 
-      {/* Busca e filtros */}
-      <div className="search-bar">
-        <input
-          type="text"
-          className="search-input"
-          placeholder="Buscar por nº do processo, partes ou cliente..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-        <select
-          className="search-filter"
-          value={filtroStatus}
-          onChange={e => setFiltroStatus(e.target.value)}
-        >
-          <option value="">Todos os status</option>
-          <option value="ativo">Ativo</option>
-          <option value="arquivado">Arquivado</option>
-          <option value="encerrado">Encerrado</option>
-        </select>
+      {/* Busca e filtros - IGUAL AO FINANCEIRO */}
+      <div className="mb-6">
+        <div className="search-bar">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Buscar por nº do processo, partes ou cliente..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          <select
+            className="search-filter"
+            value={filtroStatus}
+            onChange={e => setFiltroStatus(e.target.value)}
+          >
+            <option value="">Todos os status</option>
+            <option value="ativo">Ativo</option>
+            <option value="arquivado">Arquivado</option>
+            <option value="encerrado">Encerrado</option>
+          </select>
+        </div>
+
+        {/* Condição: Só aparece se houver busca ou filtro de status */}
         {(search || filtroStatus) && (
-          <span className="search-results">
-            {processosFiltrados.length} resultado{processosFiltrados.length !== 1 ? 's' : ''}
-          </span>
+          <div className="mt-2 px-1">
+            <span className="search-results font-medium">
+              {processosFiltrados.length} resultado{processosFiltrados.length !== 1 ? 's' : ''} encontrado{processosFiltrados.length !== 1 ? 's' : ''}
+            </span>
+          </div>
         )}
       </div>
 
       <section className="table-container">
         {loading ? (
-          <div className="loading-container">
-            Carregando processos...
-          </div>
+          <div className="loading-container">Carregando processos...</div>
         ) : (
           <table className="lawfy-table">
             <thead className="table-header">

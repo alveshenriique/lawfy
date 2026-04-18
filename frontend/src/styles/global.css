@@ -467,6 +467,13 @@
          rounded-lg border border-lawfy-primary/20;
 }
 
+.btn-table-secondary {
+  @apply px-3 py-1.5 text-xs font-semibold rounded-lg
+         bg-gray-100 text-gray-600
+         hover:bg-gray-200
+         transition-all duration-200;
+}
+
 /* ============================= */
 /* 17. CLIENTE DETALHES */
 /* ============================= */

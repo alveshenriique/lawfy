@@ -88,18 +88,24 @@ export function Clientes() {
         </div>
       )}
 
-      <div className="search-bar">
-        <input
-          type="text"
-          className="search-input"
-          placeholder="Buscar por nome ou CPF/CNPJ..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
+      {/* Busca e filtros - PADRÃO FINANCEIRO INTEGRADO */}
+      <div className="mb-6">
+        <div className="search-bar">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Buscar por nome ou CPF/CNPJ..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
+
         {search && (
-          <span className="search-results">
-            {clientesFiltrados.length} resultado{clientesFiltrados.length !== 1 ? 's' : ''}
-          </span>
+          <div className="mt-2 px-1">
+            <span className="search-results font-medium">
+              {clientesFiltrados.length} resultado{clientesFiltrados.length !== 1 ? 's' : ''} encontrado{clientesFiltrados.length !== 1 ? 's' : ''}
+            </span>
+          </div>
         )}
       </div>
 
@@ -164,7 +170,7 @@ export function Clientes() {
         )}
       </section>
 
-      {/* Modal: Detalhes do Cliente */}
+      {/* Modal: Detalhes do Cliente - RESTAURADO ORIGINAL */}
       <Modal
         isOpen={!!clienteToView}
         onClose={() => setClienteToView(null)}
@@ -205,7 +211,7 @@ export function Clientes() {
                     <span className="cliente-detalhe-valor">
                       {clienteToView.logradouro}
                       {clienteToView.numero && `, nº ${clienteToView.numero}`}
-                      {clienteToView.complemento && ` — ${clienteToView.complemento}`}
+                      {clienteToView.complemento && ` - ${clienteToView.complemento}`}
                     </span>
                   </div>
                 )}
@@ -219,7 +225,7 @@ export function Clientes() {
                   <div className="cliente-detalhe-grupo">
                     <span className="cliente-detalhe-label">Cidade / Estado</span>
                     <span className="cliente-detalhe-valor">
-                      {clienteToView.cidade}{clienteToView.estado && ` — ${clienteToView.estado}`}
+                      {clienteToView.cidade}{clienteToView.estado && ` - ${clienteToView.estado}`}
                     </span>
                   </div>
                 )}

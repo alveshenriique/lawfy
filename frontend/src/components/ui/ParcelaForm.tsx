@@ -25,34 +25,45 @@ export function ParcelaForm({ onSubmit, isLoading, defaultValues }: ParcelaFormP
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-
-      {/* Valor da Parcela */}
+      {/* Valor da Parcela com Máscara Profissional */}
       <Controller
         name="valor_parcela"
         control={control}
-        render={({ field }) => (
-          <div className="flex flex-col gap-2 w-full text-left">
-            <label className="input-label" htmlFor="valor_parcela">
-              Valor da Parcela
-            </label>
-            <div className="input-prefix-wrapper">
-              <span className="input-prefix-symbol">R$</span>
-              <input
-                id="valor_parcela"
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0,00"
-                className={`input-with-prefix ${errors.valor_parcela ? 'input-error' : ''}`}
-                value={field.value ?? ''}
-                onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
-              />
+        render={({ field }) => {
+          // Formata o valor numérico para exibição visual (ex: 1250.5 -> 1.250,50)
+          const displayValue = new Intl.NumberFormat('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }).format(field.value || 0);
+
+          return (
+            <div className="flex flex-col gap-2 w-full text-left">
+              <label className="input-label" htmlFor="valor_parcela">
+                Valor da Parcela
+              </label>
+              <div className="input-prefix-wrapper">
+                <span className="input-prefix-symbol">R$</span>
+                <input
+                  id="valor_parcela"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="0,00"
+                  className={`input-with-prefix ${errors.valor_parcela ? 'input-error' : ''}`}
+                  // Se o valor for 0 e o usuário não digitou nada, mostramos vazio
+                  value={field.value === 0 ? '' : displayValue}
+                  onChange={(e) => {
+                    const rawValue = e.target.value.replace(/\D/g, ''); // Remove tudo que não é dígito
+                    const floatValue = Number(rawValue) / 100; // Transforma centavos em float
+                    field.onChange(floatValue); // Salva como número no formulário
+                  }}
+                />
+              </div>
+              {errors.valor_parcela && (
+                <span className="input-error-msg">{errors.valor_parcela.message}</span>
+              )}
             </div>
-            {errors.valor_parcela && (
-              <span className="input-error-msg">{errors.valor_parcela.message}</span>
-            )}
-          </div>
-        )}
+          );
+        }}
       />
 
       {/* Data de Vencimento */}

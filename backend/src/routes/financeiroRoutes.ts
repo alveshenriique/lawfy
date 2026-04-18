@@ -8,8 +8,8 @@ const router = Router();
 router.post('/', validate(financeiroSchema), FinanceiroController.gerarContrato);
 router.get('/', FinanceiroController.listar);
 router.put('/:id', FinanceiroController.editar);
-router.put('/parcelas/:id', FinanceiroController.quitarParcela);
-router.patch('/parcelas/:id', FinanceiroController.editarParcela);
+router.patch('/parcelas/:id/status', FinanceiroController.quitarParcela);
+router.patch('/parcelas/:id/editar', FinanceiroController.editarParcela);
 router.delete('/:id', FinanceiroController.remover);
 
 export { router as financeiroRoutes };

@@ -9,28 +9,26 @@ class FinanceiroController {
       const supabase = createUserClient(req.token!);
       const { processo_id, tipo, valor_total, descricao, numero_parcelas } = req.body;
 
-      // Inserindo o registro pai com user_id
       const { data: financeiro, error: finError } = await supabase
         .from('financeiro')
         .insert([{ 
           processo_id, 
           tipo, 
-          valor_total, 
+          valor_total: Number(valor_total), 
           descricao, 
           status: 'pendente', 
-          user_id: req.user!.id // Garante o dono do registro
+          user_id: req.user!.id 
         }])
         .select()
         .single();
 
       if (finError) throw new AppError(finError.message, 400);
 
-      const valorParcela = valor_total / numero_parcelas;
+      const valorParcela = Number(valor_total) / Number(numero_parcelas);
       const parcelasParaInserir = [];
 
       for (let i = 1; i <= numero_parcelas; i++) {
         const dataVencimento = new Date();
-        // Ajuste para vencimento mensal começando em 30 dias
         dataVencimento.setMonth(dataVencimento.getMonth() + i);
 
         parcelasParaInserir.push({
@@ -38,7 +36,7 @@ class FinanceiroController {
           valor_parcela: valorParcela,
           data_vencimento: dataVencimento.toISOString().split('T')[0],
           pago: false,
-          user_id: req.user!.id, // Importante: parcelas também precisam de dono para o RLS funcionar nelas
+          user_id: req.user!.id,
         });
       }
 
@@ -62,7 +60,6 @@ class FinanceiroController {
     try {
       const supabase = createUserClient(req.token!);
 
-      // O select traz os dados relacionados. O RLS filtrará tudo automaticamente.
       const { data, error } = await supabase
         .from('financeiro')
         .select('*, parcelas(*), processos(id, numero_processo, nome_partes, clientes(id, nome))')
@@ -70,7 +67,6 @@ class FinanceiroController {
 
       if (error) throw new AppError(error.message, 400);
 
-      // Ordenação lógica das parcelas para exibição no frontend
       const dataOrdenada = data?.map(financeiro => ({
         ...financeiro,
         parcelas: (financeiro.parcelas ?? []).sort((a: any, b: any) => {
@@ -91,10 +87,9 @@ class FinanceiroController {
       const { id } = req.params;
       const { processo_id, tipo, valor_total, descricao, status } = req.body;
 
-      // O .eq('id', id) com o cliente do usuário garante que ele só edite o que for dele
       const { data, error } = await supabase
         .from('financeiro')
-        .update({ processo_id, tipo, valor_total, descricao, status })
+        .update({ processo_id, tipo, valor_total: Number(valor_total), descricao, status })
         .eq('id', id)
         .select()
         .single();
@@ -116,11 +111,16 @@ class FinanceiroController {
     try {
       const supabase = createUserClient(req.token!);
       const { id } = req.params;
+      const { pago } = req.body; 
+      
       const hoje = new Date().toISOString().split('T')[0];
 
       const { data, error } = await supabase
         .from('parcelas')
-        .update({ pago: true, data_pagamento: hoje })
+        .update({ 
+          pago: pago, 
+          data_pagamento: pago ? hoje : null 
+        })
         .eq('id', id)
         .select()
         .single();
@@ -128,7 +128,6 @@ class FinanceiroController {
       if (error) throw new AppError(error.message, 400);
       if (!data) throw new AppError("Parcela não encontrada ou sem permissão", 404);
 
-      // Verifica se todas as parcelas do contrato foram pagas
       const { data: parcelas, error: parcError } = await supabase
         .from('parcelas')
         .select('pago')
@@ -137,18 +136,17 @@ class FinanceiroController {
       if (parcError) throw new AppError(parcError.message, 400);
 
       const todasPagas = parcelas?.every(p => p.pago);
+      const novoStatusFinanceiro = todasPagas ? 'pago' : 'pendente';
 
-      if (todasPagas) {
-        await supabase
-          .from('financeiro')
-          .update({ status: 'pago' })
-          .eq('id', data.financeiro_id);
-      }
+      await supabase
+        .from('financeiro')
+        .update({ status: novoStatusFinanceiro })
+        .eq('id', data.financeiro_id);
 
       return res.json({
-        message: 'Pagamento registrado com sucesso',
+        message: pago ? 'Pagamento registrado com sucesso' : 'Pagamento desfeito com sucesso',
         data,
-        financeiro_quitado: todasPagas
+        financeiro_status: novoStatusFinanceiro
       });
     } catch (error: any) {
       return res.status(400).json({ erro: error.message });
@@ -161,22 +159,69 @@ class FinanceiroController {
       const { id } = req.params;
       const { valor_parcela, data_vencimento } = req.body;
 
-      const { data, error } = await supabase
+      // 1. Busca dados da parcela e do financeiro pai
+      const { data: atual, error: errBusca } = await supabase
         .from('parcelas')
-        .update({ valor_parcela, data_vencimento })
+        .select('*, financeiro(valor_total)')
         .eq('id', id)
-        .select()
         .single();
 
-      if (error) throw new AppError(error.message, 400);
-      if (!data) throw new AppError('Parcela não encontrada', 404);
+      if (errBusca || !atual) throw new AppError("Parcela não encontrada", 404);
+      if (atual.pago) throw new AppError("Não é possível editar uma parcela já paga", 400);
 
-      return res.json({
-        message: 'Parcela atualizada com sucesso',
-        data,
+      // VERIFICAÇÃO CRUCIAL: O valor realmente mudou?
+      // Se apenas a data mudou, o 'valorAlterado' será false.
+      const valorAlterado = Number(atual.valor_parcela) !== Number(valor_parcela);
+
+      // 2. Atualiza a parcela editada (Sempre atualiza, seja data ou valor)
+      await supabase
+        .from('parcelas')
+        .update({ valor_parcela: Number(valor_parcela), data_vencimento })
+        .eq('id', id);
+
+      // 3. REEQUILÍBRIO: Só executa se o VALOR da parcela foi mexido
+      if (valorAlterado) {
+        const { data: todas, error: errTodas } = await supabase
+          .from('parcelas')
+          .select('id, valor_parcela, pago')
+          .eq('financeiro_id', atual.financeiro_id);
+
+        if (errTodas || !todas) throw new AppError("Erro ao buscar parcelas para reequilíbrio", 400);
+
+        const totalContrato = Number(atual.financeiro.valor_total);
+        
+        // Soma o que já está pago
+        const totalJaPago = todas
+          .filter(p => p.pago)
+          .reduce((acc, p) => acc + Number(p.valor_parcela), 0);
+
+        const novoValorDestaParcela = Number(valor_parcela);
+
+        // Identifica as outras parcelas que ainda estão em aberto (não pagas e não são a atual)
+        const parcelasParaAjustar = todas
+          .filter(p => !p.pago && p.id !== Number(id));
+
+        if (parcelasParaAjustar.length > 0) {
+          const saldoRestante = totalContrato - totalJaPago - novoValorDestaParcela;
+          const valorRateado = saldoRestante / parcelasParaAjustar.length;
+
+          // Atualiza as outras parcelas uma por uma
+          for (const p of parcelasParaAjustar) {
+            await supabase
+              .from('parcelas')
+              .update({ valor_parcela: valorRateado })
+              .eq('id', p.id);
+          }
+        }
+      }
+
+      return res.json({ 
+        message: valorAlterado ? 'Parcela e saldo atualizados' : 'Data da parcela atualizada',
+        reequilibrado: valorAlterado
       });
     } catch (error: any) {
-      return res.status(400).json({ erro: error.message });
+      const statusCode = error instanceof AppError ? error.statusCode : 400;
+      return res.status(statusCode).json({ erro: error.message });
     }
   }
 

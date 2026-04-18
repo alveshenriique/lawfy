@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { Financeiro, Parcela } from '../types/financeiro';
+import type { Financeiro } from '../types/financeiro';
 import type { FinanceiroFormData } from '../lib/validations/financeiro';
 
 export const financeiroService = {
@@ -21,9 +21,11 @@ export const financeiroService = {
   remove: (id: number) =>
     api.delete(`/financeiro/${id}`),
 
-  quitarParcela: (id: number) =>
-    api.put(`/financeiro/parcelas/${id}`).then(r => r.data),
+  // Rota de status (Quitar/Desfazer) - Bate em /parcelas/:id/status
+  quitarParcela: (id: number, pago: boolean) =>
+    api.patch(`/financeiro/parcelas/${id}/status`, { pago }).then(r => r.data),
 
+  // Rota de edição (Reequilíbrio) - Bate em /parcelas/:id/editar
   editarParcela: (id: number, data: { valor_parcela: number; data_vencimento: string }) =>
-    api.patch<Parcela>(`/financeiro/parcelas/${id}`, data).then(r => r.data),
+    api.patch(`/financeiro/parcelas/${id}/editar`, data).then(r => r.data),
 };

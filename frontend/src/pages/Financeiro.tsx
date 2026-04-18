@@ -1,4 +1,4 @@
-import { useState, Fragment } from 'react';
+import { useState, useMemo, Fragment } from 'react';
 import { Layout } from '../components/layout/Layout';
 import { Modal } from '../components/ui/Modal';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
@@ -19,14 +19,28 @@ export function Financeiro() {
   const [financeiroToDelete, setFinanceiroToDelete] = useState<Financeiro | null>(null);
   const [parcelaToEdit, setParcelaToEdit] = useState<Parcela | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [search, setSearch] = useState('');
+  const [filtroTipo, setFiltroTipo] = useState('');
+  const [filtroStatus, setFiltroStatus] = useState('');
+
+  const financeirosFiltrados = useMemo(() => {
+    return financeiros.filter(item => {
+      const matchSearch = !search.trim() ||
+        item.descricao.toLowerCase().includes(search.toLowerCase()) ||
+        (item.processos?.clientes?.nome ?? '').toLowerCase().includes(search.toLowerCase());
+
+      const matchTipo = !filtroTipo || item.tipo === filtroTipo;
+      const matchStatus = !filtroStatus || item.status === filtroStatus;
+
+      return matchSearch && matchTipo && matchStatus;
+    });
+  }, [financeiros, search, filtroTipo, filtroStatus]);
 
   async function handleCreateFinanceiro(data: FinanceiroFormData) {
     try {
       await createFinanceiro(data);
       setIsCreateModalOpen(false);
-    } catch {
-      // erro já tratado no hook
-    }
+    } catch { /* erro tratado no hook */ }
   }
 
   async function handleUpdateFinanceiro(data: FinanceiroFormData) {
@@ -34,9 +48,7 @@ export function Financeiro() {
     try {
       await updateFinanceiro(financeiroToEdit.id, data);
       setFinanceiroToEdit(null);
-    } catch {
-      // erro já tratado no hook
-    }
+    } catch { /* erro tratado no hook */ }
   }
 
   async function handleDeleteFinanceiro() {
@@ -44,17 +56,13 @@ export function Financeiro() {
     try {
       await deleteFinanceiro(financeiroToDelete.id);
       setFinanceiroToDelete(null);
-    } catch {
-      // erro já tratado no hook
-    }
+    } catch { /* erro tratado no hook */ }
   }
 
-  async function handleQuitarParcela(parcelaId: number) {
+  async function handleTogglePagamento(parcelaId: number, statusAtual: boolean) {
     try {
-      await quitarParcela(parcelaId);
-    } catch {
-      // erro já tratado no hook
-    }
+      await quitarParcela(parcelaId, !statusAtual);
+    } catch { /* erro tratado no hook */ }
   }
 
   async function handleEditarParcela(data: ParcelaFormData) {
@@ -62,9 +70,7 @@ export function Financeiro() {
     try {
       await editarParcela(parcelaToEdit.id, data);
       setParcelaToEdit(null);
-    } catch {
-      // erro já tratado no hook
-    }
+    } catch { /* erro tratado no hook */ }
   }
 
   return (
@@ -74,23 +80,56 @@ export function Financeiro() {
           <h2 className="page-title">Financeiro</h2>
           <p className="page-subtitle">Controle de receitas, despesas e honorários.</p>
         </div>
-
         <button className="btn-new-entity" onClick={() => setIsCreateModalOpen(true)}>
           Novo Lançamento
         </button>
       </header>
 
-      {error && (
-        <div className="alert-error">
-          {error}
+      {error && <div className="alert-error">{error}</div>}
+
+      {/* Busca e filtros */}
+      <div className="mb-6">
+        <div className="search-bar">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Buscar por descrição ou cliente..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          <select
+            className="search-filter"
+            value={filtroTipo}
+            onChange={e => setFiltroTipo(e.target.value)}
+          >
+            <option value="">Todos os tipos</option>
+            <option value="receita">Receita</option>
+            <option value="despesa">Despesa</option>
+          </select>
+          <select
+            className="search-filter"
+            value={filtroStatus}
+            onChange={e => setFiltroStatus(e.target.value)}
+          >
+            <option value="">Todos os status</option>
+            <option value="pendente">Aberto</option>
+            <option value="pago">Pago</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
         </div>
-      )}
+
+        {(search || filtroTipo || filtroStatus) && (
+          <div className="mt-2 px-1">
+            <span className="search-results font-medium">
+              {financeirosFiltrados.length} resultado{financeirosFiltrados.length !== 1 ? 's' : ''} encontrado{financeirosFiltrados.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+        )}
+      </div>
 
       <section className="table-container">
         {loading ? (
-          <div className="loading-container">
-            Carregando lançamentos...
-          </div>
+          <div className="loading-container">Carregando lançamentos...</div>
         ) : (
           <table className="lawfy-table">
             <thead className="table-header">
@@ -105,17 +144,15 @@ export function Financeiro() {
               </tr>
             </thead>
             <tbody>
-              {financeiros.length > 0 ? (
-                financeiros.map((item) => (
+              {financeirosFiltrados.length > 0 ? (
+                financeirosFiltrados.map((item) => (
                   <Fragment key={item.id}>
                     <tr className="table-row">
                       <td className="table-cell-main">{item.descricao}</td>
                       <td className="table-cell-secondary">
                         {item.processos?.clientes?.nome ?? '—'}
                       </td>
-                      <td className="table-cell-secondary capitalize">
-                        {item.tipo}
-                      </td>
+                      <td className="table-cell-secondary capitalize">{item.tipo}</td>
                       <td className="table-cell-data text-right font-bold">
                         {new Intl.NumberFormat('pt-BR', {
                           style: 'currency',
@@ -132,7 +169,7 @@ export function Financeiro() {
                       </td>
                       <td className="table-cell text-center">
                         <span className={`badge-status-processo badge-status-${item.status}`}>
-                          {item.status.toUpperCase()}
+                          {item.status === 'pendente' ? 'ABERTO' : item.status.toUpperCase()}
                         </span>
                       </td>
                       <td className="table-cell-actions">
@@ -151,8 +188,7 @@ export function Financeiro() {
                       </td>
                     </tr>
 
-                    {/* Parcelas expandidas */}
-                    {expandedId === item.id && item.parcelas && item.parcelas.length > 0 && (
+                    {expandedId === item.id && item.parcelas && (
                       <tr>
                         <td colSpan={7} className="parcelas-container">
                           <table className="parcelas-table">
@@ -181,36 +217,26 @@ export function Financeiro() {
                                     }).format(parcela.valor_parcela)}
                                   </td>
                                   <td className="parcelas-cell text-center">
-                                    {parcela.pago ? (
-                                      <span className="badge-status-processo badge-status-ativo">
-                                        PAGO
-                                      </span>
-                                    ) : (
-                                      <span className="badge-status-processo badge-status-encerrado">
-                                        PENDENTE
-                                      </span>
-                                    )}
+                                    <span className={`badge-status-processo ${parcela.pago ? 'badge-status-pago' : 'badge-status-pendente'}`}>
+                                      {parcela.pago ? 'PAGO' : 'ABERTO'}
+                                    </span>
                                   </td>
                                   <td className="parcelas-cell text-center">
                                     <div className="flex items-center justify-center gap-2">
-                                      {!parcela.pago && (
-                                        <>
-                                          <button
-                                            className="btn-table-edit"
-                                            onClick={() => setParcelaToEdit(parcela)}
-                                            disabled={saving}
-                                          >
-                                            Editar
-                                          </button>
-                                          <button
-                                            className="btn-table-edit"
-                                            onClick={() => handleQuitarParcela(parcela.id)}
-                                            disabled={saving}
-                                          >
-                                            Quitar
-                                          </button>
-                                        </>
-                                      )}
+                                      <button
+                                        className="btn-table-edit"
+                                        onClick={() => setParcelaToEdit(parcela)}
+                                        disabled={saving}
+                                      >
+                                        Editar
+                                      </button>
+                                      <button
+                                        className="btn-table-edit"
+                                        onClick={() => handleTogglePagamento(parcela.id, parcela.pago)}
+                                        disabled={saving}
+                                      >
+                                        {parcela.pago ? 'Desfazer' : 'Quitar'}
+                                      </button>
                                     </div>
                                   </td>
                                 </tr>
@@ -223,20 +249,17 @@ export function Financeiro() {
                   </Fragment>
                 ))
               ) : (
-                !error && (
-                  <tr>
-                    <td colSpan={7} className="empty-state-row">
-                      Nenhum registro financeiro encontrado.
-                    </td>
-                  </tr>
-                )
+                <tr>
+                  <td colSpan={7} className="empty-state-row">
+                    Nenhum registro encontrado.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
         )}
       </section>
 
-      {/* Modal: Novo Lançamento */}
       <Modal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
@@ -249,7 +272,6 @@ export function Financeiro() {
         />
       </Modal>
 
-      {/* Modal: Editar Lançamento */}
       <Modal
         isOpen={!!financeiroToEdit}
         onClose={() => setFinanceiroToEdit(null)}
@@ -263,7 +285,6 @@ export function Financeiro() {
         />
       </Modal>
 
-      {/* Modal: Editar Parcela */}
       <Modal
         isOpen={!!parcelaToEdit}
         onClose={() => setParcelaToEdit(null)}
@@ -276,13 +297,12 @@ export function Financeiro() {
         />
       </Modal>
 
-      {/* Modal: Confirmar Exclusão */}
       <ConfirmModal
         isOpen={!!financeiroToDelete}
         onClose={() => setFinanceiroToDelete(null)}
         onConfirm={handleDeleteFinanceiro}
         title="Excluir Lançamento"
-        message={`Tem certeza que deseja excluir o lançamento "${financeiroToDelete?.descricao}"? Todas as parcelas vinculadas também serão excluídas.`}
+        message={`Deseja excluir o lançamento "${financeiroToDelete?.descricao}"? Todas as parcelas vinculadas também serão excluídas.`}
         isLoading={saving}
       />
     </Layout>

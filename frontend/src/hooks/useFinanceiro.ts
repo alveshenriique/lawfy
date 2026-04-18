@@ -67,14 +67,22 @@ export function useFinanceiro() {
     }
   }
 
-  async function quitarParcela(id: number) {
+  // MÉTODO ATUALIZADO: Recebe o ID e o novo estado (pago: true ou false)
+  async function quitarParcela(id: number, pago: boolean) {
     try {
       setSaving(true);
-      await financeiroService.quitarParcela(id);
+      // Enviamos o status para o service, que por sua vez enviará ao backend
+      await financeiroService.quitarParcela(id, pago);
       await loadFinanceiro();
-      toast.success('Parcela quitada com sucesso!');
+      
+      if (pago) {
+        toast.success('Parcela quitada com sucesso!');
+      } else {
+        toast.success('Pagamento desfeito com sucesso!');
+      }
     } catch (err) {
       console.error(err);
+      toast.error('Erro ao atualizar status da parcela.');
       throw err;
     } finally {
       setSaving(false);
@@ -108,7 +116,7 @@ export function useFinanceiro() {
     createFinanceiro,
     updateFinanceiro,
     deleteFinanceiro,
-    quitarParcela,
+    quitarParcela, // Agora suporta o toggle (quitar/desfazer)
     editarParcela,
   };
 }

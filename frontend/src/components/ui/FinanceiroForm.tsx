@@ -23,6 +23,7 @@ export function FinanceiroForm({ onSubmit, isLoading, processos, defaultValues }
     defaultValues: {
       tipo: 'receita',
       numero_parcelas: 1,
+      valor_total: 0,
       ...defaultValues,
     },
   });
@@ -98,39 +99,49 @@ export function FinanceiroForm({ onSubmit, isLoading, processos, defaultValues }
       {/* Descrição */}
       <Textarea
         label="Descrição"
-        placeholder="Ex: Honorários advocatícios referente ao processo..."
+        placeholder="Ex: Honorários advocatícios..."
         rows={3}
         {...register('descricao')}
         error={errors.descricao?.message}
       />
 
-      {/* Valor Total */}
+      {/* Valor Total com Máscara Profissional */}
       <Controller
         name="valor_total"
         control={control}
-        render={({ field }) => (
-          <div className="flex flex-col gap-2 w-full text-left">
-            <label className="input-label" htmlFor="valor_total">
-              Valor Total
-            </label>
-            <div className="input-prefix-wrapper">
-              <span className="input-prefix-symbol">R$</span>
-              <input
-                id="valor_total"
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0,00"
-                className={`input-with-prefix ${errors.valor_total ? 'input-error' : ''}`}
-                value={field.value ?? ''}
-                onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
-              />
+        render={({ field }) => {
+          const displayValue = new Intl.NumberFormat('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }).format(field.value || 0);
+
+          return (
+            <div className="flex flex-col gap-2 w-full text-left">
+              <label className="input-label" htmlFor="valor_total">
+                Valor Total
+              </label>
+              <div className="input-prefix-wrapper">
+                <span className="input-prefix-symbol">R$</span>
+                <input
+                  id="valor_total"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="0,00"
+                  className={`input-with-prefix ${errors.valor_total ? 'input-error' : ''}`}
+                  value={field.value === 0 ? '' : displayValue}
+                  onChange={(e) => {
+                    const rawValue = e.target.value.replace(/\D/g, '');
+                    const floatValue = Number(rawValue) / 100;
+                    field.onChange(floatValue);
+                  }}
+                />
+              </div>
+              {errors.valor_total && (
+                <span className="input-error-msg">{errors.valor_total.message}</span>
+              )}
             </div>
-            {errors.valor_total && (
-              <span className="input-error-msg">{errors.valor_total.message}</span>
-            )}
-          </div>
-        )}
+          );
+        }}
       />
 
       {/* Número de Parcelas */}
