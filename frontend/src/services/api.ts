@@ -12,13 +12,13 @@ export const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('@Lawfy:token');
-
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-
   return config;
 });
+
+let isShowingConnectionError = false;
 
 api.interceptors.response.use(
   (response) => response,
@@ -34,8 +34,14 @@ api.interceptors.response.use(
       toast.error('Erro interno do servidor. Tente novamente.');
     } else if (error.response?.status === 404) {
       toast.error('Registro não encontrado.');
-    } else if (!error.response) {
-      toast.error('Sem conexão com o servidor. Verifique sua internet.');
+    } else if (!error.response && !isShowingConnectionError) {
+      isShowingConnectionError = true;
+      toast.error('Sem conexão com o servidor. Verifique sua internet.', {
+        duration: 5000,
+      });
+      setTimeout(() => {
+        isShowingConnectionError = false;
+      }, 5000);
     }
 
     return Promise.reject(error);

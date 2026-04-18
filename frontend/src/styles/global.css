@@ -497,3 +497,125 @@
 .cliente-detalhe-valor {
   @apply text-sm text-lawfy-text;
 }
+
+/* ============================= */
+/* TOPBAR */
+/* ============================= */
+
+.topbar-container {
+  @apply flex items-center justify-between px-8 py-4 bg-white border-b border-gray-200;
+}
+
+.topbar-title {
+  @apply text-sm font-medium text-lawfy-text-soft;
+}
+
+.user-badge {
+  @apply flex items-center gap-3;
+}
+
+.user-name {
+  @apply text-sm font-semibold text-lawfy-text;
+}
+
+.user-role {
+  @apply text-xs text-lawfy-text-soft;
+}
+
+.user-avatar {
+  @apply w-9 h-9 rounded-full bg-lawfy-primary text-white
+         flex items-center justify-center font-bold text-sm uppercase;
+}
+
+.topbar-dropdown {
+  @apply absolute right-0 top-12 w-56 bg-white rounded-xl shadow-lg
+         border border-gray-200 z-50 overflow-hidden;
+}
+
+.topbar-dropdown-header {
+  @apply px-4 py-3;
+}
+
+.topbar-dropdown-name {
+  @apply text-sm font-semibold text-lawfy-text;
+}
+
+.topbar-dropdown-email {
+  @apply text-xs text-lawfy-text-soft mt-0.5;
+}
+
+.topbar-dropdown-divider {
+  @apply h-px bg-gray-100;
+}
+
+.topbar-dropdown-item {
+  @apply w-full text-left px-4 py-3 text-sm text-lawfy-text
+         hover:bg-gray-50 transition-colors;
+}
+
+.topbar-dropdown-item-danger {
+  @apply text-lawfy-error hover:bg-red-50;
+}
+
+/* ============================= */
+/* PERFIL */
+/* ============================= */
+
+.perfil-avatar-section {
+  @apply flex items-center gap-4 mb-8 p-6 bg-white rounded-xl border border-gray-200 shadow-sm;
+}
+
+.perfil-avatar {
+  @apply w-16 h-16 rounded-full bg-lawfy-primary text-white
+         flex items-center justify-center font-bold text-2xl uppercase;
+}
+
+.perfil-nome {
+  @apply text-lg font-semibold text-lawfy-text;
+}
+
+.perfil-email {
+  @apply text-sm text-lawfy-text-soft mt-0.5;
+}
+
+.perfil-tabs {
+  @apply flex gap-1 mb-6 border-b border-gray-200;
+}
+
+.perfil-tab {
+  @apply px-4 py-2.5 text-sm font-medium text-lawfy-text-soft
+         border-b-2 border-transparent transition-all
+         hover:text-lawfy-text;
+}
+
+.perfil-tab-active {
+  @apply text-lawfy-primary border-lawfy-primary;
+}
+
+.perfil-content {
+  @apply bg-white rounded-xl border border-gray-200 shadow-sm p-6;
+}
+
+/* ============================= */
+/* NOT FOUND */
+/* ============================= */
+
+.notfound-container {
+  @apply min-h-screen flex items-center justify-center bg-lawfy-bg;
+}
+
+.notfound-content {
+  @apply text-center;
+}
+
+.notfound-code {
+  @apply text-8xl font-bold text-lawfy-primary opacity-20;
+}
+
+.notfound-title {
+  @apply text-2xl font-bold text-lawfy-text mt-2;
+}
+
+.notfound-subtitle {
+  @apply text-lawfy-text-soft text-sm mt-2;
+}

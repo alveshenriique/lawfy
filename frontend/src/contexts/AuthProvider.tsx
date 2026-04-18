@@ -17,20 +17,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const [loading, setLoading] = useState(false);
 
-async function signIn({ email, password }: LoginCredentials) {
-  setLoading(true);
-  try {
-    const response = await api.post<LoginResponse>('/auth/login', { email, password });
-    const { token, usuario } = response.data;
+  async function signIn({ email, password }: LoginCredentials) {
+    setLoading(true);
+    try {
+      const response = await api.post<LoginResponse>('/auth/login', { email, password });
+      const { token, usuario } = response.data;
 
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    localStorage.setItem('@Lawfy:token', token);
-    localStorage.setItem('@Lawfy:user', JSON.stringify(usuario));
-    setUser(usuario);
-  } finally {
-    setLoading(false);
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      localStorage.setItem('@Lawfy:token', token);
+      localStorage.setItem('@Lawfy:user', JSON.stringify(usuario));
+      setUser(usuario);
+    } finally {
+      setLoading(false);
+    }
   }
-}
+
   function signOut() {
     localStorage.removeItem('@Lawfy:token');
     localStorage.removeItem('@Lawfy:user');
@@ -38,8 +39,17 @@ async function signIn({ email, password }: LoginCredentials) {
     setUser(null);
   }
 
+  function updateUser(dadosAtualizados: Partial<User>) {
+    setUser(prev => {
+      if (!prev) return null;
+      const updated = { ...prev, ...dadosAtualizados };
+      localStorage.setItem('@Lawfy:user', JSON.stringify(updated));
+      return updated;
+    });
+  }
+
   return (
-    <AuthContext.Provider value={{ signed: !!user, user, signIn, signOut, loading }}>
+    <AuthContext.Provider value={{ signed: !!user, user, signIn, signOut, loading, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

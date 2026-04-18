@@ -4,6 +4,7 @@ import cors from 'cors';
 import { authRoutes } from './routes/authRoutes';
 import { dashboardRoutes } from './routes/dashboardRoutes';
 import { clienteRoutes } from './routes/clienteRoutes';
+import { perfilRoutes } from './routes/perfilRoutes';
 import { processoRoutes } from './routes/processoRoutes';
 import { financeiroRoutes } from './routes/financeiroRoutes';
 import { authMiddleware } from './middlewares/authMiddleware';
@@ -29,6 +30,7 @@ app.get('/health', (req: Request, res: Response) => {
 app.use(authMiddleware);
 
 // Rotas protegidas
+app.use('/perfil', perfilRoutes);
 app.use('/clientes', clienteRoutes);
 app.use('/processos', processoRoutes);
 app.use('/financeiro', financeiroRoutes);
