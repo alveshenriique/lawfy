@@ -307,11 +307,12 @@
 }
 
 .modal-container {
-  @apply bg-white rounded-xl shadow-xl w-full max-w-md;
+  @apply bg-white rounded-xl shadow-xl w-full
+         flex flex-col max-h-[90vh];
 }
 
 .modal-header {
-  @apply flex items-center justify-between p-6 border-b border-gray-200;
+  @apply flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0;
 }
 
 .modal-title {
@@ -319,15 +320,11 @@
 }
 
 .modal-close {
-  @apply text-gray-400 hover:text-gray-600 transition-colors text-lg;
+  @apply text-gray-400 hover:text-gray-600 transition-colors text-lg flex-shrink-0;
 }
 
 .modal-body {
-  @apply p-6;
-}
-
-.confirm-modal-actions {
-  @apply flex gap-3 justify-end;
+  @apply p-6 overflow-y-auto;
 }
 
 /* ============================= */

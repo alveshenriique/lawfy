@@ -1,14 +1,24 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+
+const pageTitles: Record<string, string> = {
+  '/dashboard': 'Painel de Controle',
+  '/clientes': 'Clientes',
+  '/processos': 'Processos',
+  '/financeiro': 'Financeiro',
+  '/perfil': 'Meu Perfil',
+};
 
 export function TopBar() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Fecha o dropdown ao clicar fora
+  const pageTitle = pageTitles[location.pathname] ?? 'Lawfy';
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -32,7 +42,7 @@ export function TopBar() {
 
   return (
     <header className="topbar-container">
-      <h3 className="topbar-title">Painel de Controle</h3>
+      <h3 className="topbar-title">{pageTitle}</h3>
 
       <div className="relative" ref={dropdownRef}>
         <div

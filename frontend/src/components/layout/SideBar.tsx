@@ -1,41 +1,32 @@
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { NavLink } from 'react-router-dom';
+import { LayoutDashboard, Users, Scale, Wallet } from 'lucide-react';
 import { Logo } from '../ui/Logo';
 
-export function SideBar() {
-  const { signOut } = useAuth();
-  const navigate = useNavigate();
+const navItems = [
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/clientes', label: 'Clientes', icon: Users },
+  { to: '/processos', label: 'Processos', icon: Scale },
+  { to: '/financeiro', label: 'Financeiro', icon: Wallet },
+];
 
+export function SideBar() {
   return (
     <aside className="sidebar-container">
       <Logo />
       <nav className="sidebar-nav">
-        <NavLink to="/dashboard" className={({ isActive }) =>
-          isActive ? "nav-link nav-link-active" : "nav-link"
-        }>
-          Dashboard
-        </NavLink>
-        <NavLink to="/clientes" className={({ isActive }) =>
-          isActive ? "nav-link nav-link-active" : "nav-link"
-        }>
-          Clientes
-        </NavLink>
-        <NavLink to="/processos" className={({ isActive }) =>
-          isActive ? "nav-link nav-link-active" : "nav-link"
-        }>
-          Processos
-        </NavLink>
-        <NavLink to="/financeiro" className={({ isActive }) =>
-          isActive ? "nav-link nav-link-active" : "nav-link"
-        }>
-          Financeiro
-        </NavLink>
+        {navItems.map(({ to, label, icon: Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) =>
+              isActive ? "nav-link nav-link-active" : "nav-link"
+            }
+          >
+            <Icon size={18} />
+            {label}
+          </NavLink>
+        ))}
       </nav>
-      <footer className="sidebar-footer">
-        <button onClick={() => { signOut(); navigate('/'); }} className="btn-logout">
-          Sair do Sistema
-        </button>
-      </footer>
     </aside>
   );
 }

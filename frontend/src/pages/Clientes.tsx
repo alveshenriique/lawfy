@@ -88,7 +88,6 @@ export function Clientes() {
         </div>
       )}
 
-      {/* Busca e filtros - PADRÃO FINANCEIRO INTEGRADO */}
       <div className="mb-6">
         <div className="search-bar">
           <input
@@ -99,7 +98,6 @@ export function Clientes() {
             onChange={e => setSearch(e.target.value)}
           />
         </div>
-
         {search && (
           <div className="mt-2 px-1">
             <span className="search-results font-medium">
@@ -170,7 +168,7 @@ export function Clientes() {
         )}
       </section>
 
-      {/* Modal: Detalhes do Cliente - RESTAURADO ORIGINAL */}
+      {/* Modal: Detalhes do Cliente */}
       <Modal
         isOpen={!!clienteToView}
         onClose={() => setClienteToView(null)}
@@ -193,7 +191,6 @@ export function Clientes() {
               </div>
             )}
 
-            {/* Endereço */}
             {formatEndereco(clienteToView) && (
               <>
                 <div className="form-section-divider">
@@ -259,6 +256,7 @@ export function Clientes() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         title="Novo Cliente"
+        size="lg"
       >
         <ClienteForm
           onSubmit={handleCreateCliente}
@@ -271,6 +269,7 @@ export function Clientes() {
         isOpen={!!clienteToEdit}
         onClose={() => setClienteToEdit(null)}
         title="Editar Cliente"
+        size="lg"
       >
         <ClienteForm
           onSubmit={handleUpdateCliente}
