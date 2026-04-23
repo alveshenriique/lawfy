@@ -136,6 +136,10 @@
   @apply text-lawfy-text-soft text-sm mt-1;
 }
 
+.dashboard-calendar {
+  @apply mt-6;
+}
+
 /* ============================= */
 /* 5. SIDEBAR */
 /* ============================= */
@@ -615,4 +619,89 @@
 
 .notfound-subtitle {
   @apply text-lawfy-text-soft text-sm mt-2;
+}
+
+/* ============================= */
+/* GOOGLE CALENDAR WIDGET */
+/* ============================= */
+
+.calendar-widget-empty {
+  @apply flex flex-col items-center justify-center p-8 bg-white
+         rounded-xl border border-gray-200 shadow-sm text-center;
+}
+
+.calendar-widget-empty-icon {
+  @apply text-lawfy-text-soft mb-3;
+}
+
+.calendar-widget-empty-title {
+  @apply text-sm font-medium text-lawfy-text mb-1;
+}
+
+.calendar-widget-empty-subtitle {
+  @apply text-xs text-lawfy-text-soft mb-4;
+}
+
+.calendar-widget {
+  @apply bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden;
+}
+
+.calendar-widget-header {
+  @apply flex items-center justify-between px-4 py-3 border-b border-gray-100;
+}
+
+.calendar-widget-header-left {
+  @apply flex items-center gap-2;
+}
+
+.calendar-widget-icon {
+  @apply text-lawfy-primary;
+}
+
+.calendar-widget-title {
+  @apply text-sm font-semibold text-lawfy-text;
+}
+
+.calendar-widget-disconnect {
+  @apply text-xs text-lawfy-text-soft hover:text-lawfy-text transition-colors;
+}
+
+.calendar-widget-loading {
+  @apply flex items-center justify-center gap-2 py-6 text-lawfy-text-soft text-sm;
+}
+
+.calendar-widget-error {
+  @apply text-xs text-lawfy-error text-center py-4;
+}
+
+.calendar-widget-empty-events {
+  @apply text-sm text-lawfy-text-soft text-center py-6;
+}
+
+.calendar-event-list {
+  @apply divide-y divide-gray-50;
+}
+
+.calendar-event-item {
+  @apply flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors;
+}
+
+.calendar-event-date {
+  @apply text-xs font-semibold text-lawfy-primary whitespace-nowrap min-w-24;
+}
+
+.calendar-event-info {
+  @apply flex-1 min-w-0;
+}
+
+.calendar-event-title {
+  @apply text-sm font-medium text-lawfy-text truncate;
+}
+
+.calendar-event-location {
+  @apply text-xs text-lawfy-text-soft truncate mt-0.5;
+}
+
+.calendar-event-link {
+  @apply text-lawfy-text-soft hover:text-lawfy-primary transition-colors flex-shrink-0;
 }

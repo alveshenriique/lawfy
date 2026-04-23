@@ -1,6 +1,7 @@
 import { Layout } from '../components/layout/Layout';
 import { useAuth } from '../hooks/useAuth';
 import { useDashboard } from '../hooks/useDashboard';
+import { GoogleCalendarWidget } from '../components/ui/GoogleCalendarWidget';
 
 export function Dashboard() {
   const { user } = useAuth();
@@ -18,8 +19,6 @@ export function Dashboard() {
       </header>
 
       <section className="stats-grid">
-
-        {/* Card: Clientes */}
         <article className="stat-card">
           <p className="stat-label">Clientes Cadastrados</p>
           <h4 className="stat-value">
@@ -30,7 +29,6 @@ export function Dashboard() {
           </span>
         </article>
 
-        {/* Card: Processos Ativos */}
         <article className="stat-card">
           <p className="stat-label">Processos Ativos</p>
           <h4 className="stat-value">
@@ -41,7 +39,6 @@ export function Dashboard() {
           </span>
         </article>
 
-        {/* Card: Parcelas Vencendo */}
         <article className="stat-card">
           <p className="stat-label">Parcelas Vencendo</p>
           <h4 className={`stat-value ${(resumo?.parcelasVencendo ?? 0) > 0 ? 'text-lawfy-error' : ''}`}>
@@ -52,7 +49,6 @@ export function Dashboard() {
           </span>
         </article>
 
-        {/* Card: Valor a Receber */}
         <article className="stat-card">
           <p className="stat-label">Valor a Receber</p>
           <h4 className="stat-value text-lawfy-success">
@@ -65,8 +61,12 @@ export function Dashboard() {
             Parcelas pendentes
           </span>
         </article>
-
       </section>
+
+      {/* Google Calendar */}
+      <div className="dashboard-calendar">
+        <GoogleCalendarWidget />
+      </div>
     </Layout>
   );
 }
