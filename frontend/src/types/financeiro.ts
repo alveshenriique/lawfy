@@ -1,5 +1,5 @@
 export type FinanceiroTipo = 'receita' | 'despesa';
-export type FinanceiroStatus = 'pendente' | 'pago' | 'cancelado';
+export type FinanceiroStatus = 'pendente' | 'pago';
 
 export interface Parcela {
   id: number;

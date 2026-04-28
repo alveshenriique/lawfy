@@ -1,9 +1,12 @@
 import { useState, useMemo } from 'react';
+import { Users } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Layout } from '../components/layout/Layout';
 import { Modal } from '../components/ui/Modal';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { ClienteForm } from '../components/ui/ClienteForm';
+import { TableSkeleton } from '../components/ui/TableSkeleton';
+import { EmptyState } from '../components/ui/EmptyState';
 import { useClientes } from '../hooks/useClientes';
 import { formatCpfCnpj, formatTelefone } from '../utils/formatters';
 import type { Cliente } from '../types/cliente';
@@ -109,9 +112,7 @@ export function Clientes() {
 
       <section className="table-container">
         {loading ? (
-          <div className="loading-container">
-            Carregando clientes...
-          </div>
+          <TableSkeleton rows={5} />
         ) : (
           <table className="lawfy-table">
             <thead className="table-header">
@@ -158,8 +159,12 @@ export function Clientes() {
 
               {clientesFiltrados.length === 0 && !error && (
                 <tr>
-                  <td colSpan={4} className="empty-state-row">
-                    {search ? 'Nenhum cliente encontrado para essa busca.' : 'Nenhum cliente cadastrado em sua base.'}
+                  <td colSpan={4}>
+                    <EmptyState
+                      icon={Users}
+                      title={search ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado'}
+                      description={search ? 'Tente uma busca diferente.' : 'Clique em "Novo Cliente" para adicionar o primeiro.'}
+                    />
                   </td>
                 </tr>
               )}

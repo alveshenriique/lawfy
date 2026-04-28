@@ -1,8 +1,12 @@
 import { useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Scale } from 'lucide-react';
 import { Layout } from '../components/layout/Layout';
 import { Modal } from '../components/ui/Modal';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { ProcessoForm } from '../components/ui/ProcessoForm';
+import { TableSkeleton } from '../components/ui/TableSkeleton';
+import { EmptyState } from '../components/ui/EmptyState';
 import { useProcessos } from '../hooks/useProcessos';
 import { useClientes } from '../hooks/useClientes';
 import type { Processo } from '../types/processo';
@@ -15,8 +19,9 @@ export function Processos() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [processoToEdit, setProcessoToEdit] = useState<Processo | null>(null);
   const [processoToDelete, setProcessoToDelete] = useState<Processo | null>(null);
+  const [searchParams] = useSearchParams();
   const [search, setSearch] = useState('');
-  const [filtroStatus, setFiltroStatus] = useState('');
+  const [filtroStatus, setFiltroStatus] = useState(searchParams.get('status') ?? '');
 
   const processosFiltrados = useMemo(() => {
     return processos.filter(processo => {
@@ -103,7 +108,7 @@ export function Processos() {
 
       <section className="table-container">
         {loading ? (
-          <div className="loading-container">Carregando processos...</div>
+          <TableSkeleton rows={5} />
         ) : (
           <table className="lawfy-table">
             <thead className="table-header">
@@ -157,8 +162,12 @@ export function Processos() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} className="empty-state-row">
-                    {search || filtroStatus ? 'Nenhum processo encontrado para esse filtro.' : 'Nenhum processo encontrado.'}
+                  <td colSpan={6}>
+                    <EmptyState
+                      icon={Scale}
+                      title={search || filtroStatus ? 'Nenhum processo encontrado' : 'Nenhum processo cadastrado'}
+                      description={search || filtroStatus ? 'Tente ajustar os filtros.' : 'Clique em "Novo Processo" para adicionar o primeiro.'}
+                    />
                   </td>
                 </tr>
               )}

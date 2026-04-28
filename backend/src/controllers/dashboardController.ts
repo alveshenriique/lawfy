@@ -66,6 +66,44 @@ class DashboardController {
         .limit(5);
       if (vencendoError) throw new AppError(vencendoError.message, 400);
 
+      // Financeiro por mês (últimos 6 meses)
+      const seisMesesAtras = new Date();
+      seisMesesAtras.setMonth(seisMesesAtras.getMonth() - 5);
+      seisMesesAtras.setDate(1);
+
+      const { data: parcelasMensais, error: mensaisError } = await supabase
+        .from('parcelas')
+        .select('valor_parcela, data_vencimento, financeiro!inner(tipo)')
+        .gte('data_vencimento', seisMesesAtras.toISOString().split('T')[0]);
+      if (mensaisError) throw new AppError(mensaisError.message, 400);
+
+      const financeiroPorMes = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date();
+        d.setMonth(d.getMonth() - i);
+        const mes = d.toLocaleDateString('pt-BR', { month: 'short' });
+        const mesNum = d.getMonth();
+        const anoNum = d.getFullYear();
+
+        const receitas = (parcelasMensais ?? [])
+          .filter((p: any) => {
+            const fin = Array.isArray(p.financeiro) ? p.financeiro[0] : p.financeiro;
+            const pDate = new Date(p.data_vencimento + 'T12:00:00');
+            return fin?.tipo === 'receita' && pDate.getMonth() === mesNum && pDate.getFullYear() === anoNum;
+          })
+          .reduce((acc: number, p: any) => acc + Number(p.valor_parcela), 0);
+
+        const despesas = (parcelasMensais ?? [])
+          .filter((p: any) => {
+            const fin = Array.isArray(p.financeiro) ? p.financeiro[0] : p.financeiro;
+            const pDate = new Date(p.data_vencimento + 'T12:00:00');
+            return fin?.tipo === 'despesa' && pDate.getMonth() === mesNum && pDate.getFullYear() === anoNum;
+          })
+          .reduce((acc: number, p: any) => acc + Number(p.valor_parcela), 0);
+
+        financeiroPorMes.push({ mes, receitas, despesas });
+      }
+
       return res.json({
         totalClientes: totalClientes ?? 0,
         processosAtivos,
@@ -75,6 +113,7 @@ class DashboardController {
         valorAReceber,
         parcelasVencendo: parcelasVencendo ?? [],
         totalParcelasVencendo: parcelasVencendo?.length ?? 0,
+        financeiroPorMes,
       });
 
     } catch (error: any) {

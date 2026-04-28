@@ -16,6 +16,12 @@ export interface ParcelaVencendo {
   };
 }
 
+export interface FinanceiroMensal {
+  mes: string;
+  receitas: number;
+  despesas: number;
+}
+
 export interface DashboardResumo {
   totalClientes: number;
   processosAtivos: number;
@@ -25,6 +31,7 @@ export interface DashboardResumo {
   valorAReceber: number;
   parcelasVencendo: ParcelaVencendo[];
   totalParcelasVencendo: number;
+  financeiroPorMes: FinanceiroMensal[];
 }
 
 export const dashboardService = {

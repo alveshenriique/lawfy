@@ -1,9 +1,13 @@
 import { useState, useMemo, Fragment } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Wallet } from 'lucide-react';
 import { Layout } from '../components/layout/Layout';
 import { Modal } from '../components/ui/Modal';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { FinanceiroForm } from '../components/ui/FinanceiroForm';
 import { ParcelaForm } from '../components/ui/ParcelaForm';
+import { TableSkeleton } from '../components/ui/TableSkeleton';
+import { EmptyState } from '../components/ui/EmptyState';
 import { useFinanceiro } from '../hooks/useFinanceiro';
 import { useProcessos } from '../hooks/useProcessos';
 import type { Financeiro, Parcela } from '../types/financeiro';
@@ -19,9 +23,10 @@ export function Financeiro() {
   const [financeiroToDelete, setFinanceiroToDelete] = useState<Financeiro | null>(null);
   const [parcelaToEdit, setParcelaToEdit] = useState<Parcela | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [searchParams] = useSearchParams();
   const [search, setSearch] = useState('');
-  const [filtroTipo, setFiltroTipo] = useState('');
-  const [filtroStatus, setFiltroStatus] = useState('');
+  const [filtroTipo, setFiltroTipo] = useState(searchParams.get('tipo') ?? '');
+  const [filtroStatus, setFiltroStatus] = useState(searchParams.get('status') ?? '');
 
   const financeirosFiltrados = useMemo(() => {
     return financeiros.filter(item => {
@@ -114,7 +119,6 @@ export function Financeiro() {
             <option value="">Todos os status</option>
             <option value="pendente">Aberto</option>
             <option value="pago">Pago</option>
-            <option value="cancelado">Cancelado</option>
           </select>
         </div>
 
@@ -129,7 +133,7 @@ export function Financeiro() {
 
       <section className="table-container">
         {loading ? (
-          <div className="loading-container">Carregando lançamentos...</div>
+          <TableSkeleton rows={5} />
         ) : (
           <table className="lawfy-table">
             <thead className="table-header">
@@ -250,8 +254,12 @@ export function Financeiro() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="empty-state-row">
-                    Nenhum registro encontrado.
+                  <td colSpan={7}>
+                    <EmptyState
+                      icon={Wallet}
+                      title={filtroTipo || filtroStatus ? 'Nenhum lançamento encontrado' : 'Nenhum lançamento cadastrado'}
+                      description={filtroTipo || filtroStatus ? 'Tente ajustar os filtros.' : 'Clique em "Novo Lançamento" para adicionar o primeiro.'}
+                    />
                   </td>
                 </tr>
               )}

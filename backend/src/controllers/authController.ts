@@ -36,17 +36,17 @@ class AuthController {
       password,
     });
 
-    // Se o login falhar, lançamos um erro 401 (Não autorizado)
     if (error) throw new AppError('E-mail ou senha inválidos', 401);
-    
-    // Retorna o token e os dados básicos do usuário
+
+    if (!data.session) throw new AppError('Confirme seu e-mail antes de fazer login', 403);
+
     return res.json({
       mensagem: 'Login realizado com sucesso!',
-      token: data.session?.access_token,
+      token: data.session.access_token,
       usuario: {
         id: data.user?.id,
         email: data.user?.email,
-        nome: data.user?.user_metadata?.full_name 
+        nome: data.user?.user_metadata?.full_name,
       }
     });
   }
