@@ -71,6 +71,13 @@
          transition-all duration-200;
 }
 
+.btn-table-secondary {
+  @apply px-3 py-1.5 text-xs font-semibold rounded-lg
+         bg-gray-100 text-gray-600
+         hover:bg-gray-200
+         transition-all duration-200;
+}
+
 /* ============================= */
 /* 3. INPUTS */
 /* ============================= */
@@ -136,10 +143,6 @@
   @apply text-lawfy-text-soft text-sm mt-1;
 }
 
-.dashboard-calendar {
-  @apply mt-6;
-}
-
 /* ============================= */
 /* 5. SIDEBAR */
 /* ============================= */
@@ -166,15 +169,70 @@
 }
 
 /* ============================= */
-/* 6. DASHBOARD */
+/* 6. TOPBAR */
 /* ============================= */
 
-.dashboard-header {
-  @apply mb-8;
+.topbar-container {
+  @apply flex items-center justify-between px-8 py-4 bg-white border-b border-gray-200;
 }
 
+.topbar-title {
+  @apply text-sm font-medium text-lawfy-text-soft;
+}
+
+.user-badge {
+  @apply flex items-center gap-3;
+}
+
+.user-name {
+  @apply text-sm font-semibold text-lawfy-text;
+}
+
+.user-role {
+  @apply text-xs text-lawfy-text-soft;
+}
+
+.user-avatar {
+  @apply w-9 h-9 rounded-full bg-lawfy-primary text-white
+         flex items-center justify-center font-bold text-sm uppercase;
+}
+
+.topbar-dropdown {
+  @apply absolute right-0 top-12 w-56 bg-white rounded-xl shadow-lg
+         border border-gray-200 z-50 overflow-hidden;
+}
+
+.topbar-dropdown-header {
+  @apply px-4 py-3;
+}
+
+.topbar-dropdown-name {
+  @apply text-sm font-semibold text-lawfy-text;
+}
+
+.topbar-dropdown-email {
+  @apply text-xs text-lawfy-text-soft mt-0.5;
+}
+
+.topbar-dropdown-divider {
+  @apply h-px bg-gray-100;
+}
+
+.topbar-dropdown-item {
+  @apply w-full text-left px-4 py-3 text-sm text-lawfy-text
+         hover:bg-gray-50 transition-colors;
+}
+
+.topbar-dropdown-item-danger {
+  @apply text-lawfy-error hover:bg-red-50;
+}
+
+/* ============================= */
+/* 7. DASHBOARD */
+/* ============================= */
+
 .stats-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  @apply grid grid-cols-4 gap-6 mb-6;
 }
 
 .stat-card {
@@ -194,8 +252,96 @@
   @apply text-sm mt-2 block;
 }
 
+.dashboard-section-label {
+  @apply text-xs font-semibold text-lawfy-text-soft uppercase tracking-wide mb-3 mt-6;
+}
+
+.dashboard-double-grid {
+  @apply grid grid-cols-2 gap-6;
+}
+
+.dashboard-panel {
+  @apply bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden;
+}
+
+.dashboard-panel-empty {
+  @apply text-sm text-lawfy-text-soft text-center py-6 px-4;
+}
+
+.dashboard-list {
+  @apply divide-y divide-gray-50;
+}
+
+.dashboard-list-item {
+  @apply flex items-center justify-between gap-3 px-4 py-3 hover:bg-gray-50 transition-colors;
+}
+
+.dashboard-list-info {
+  @apply flex-1 min-w-0;
+}
+
+.dashboard-list-title {
+  @apply text-sm font-medium text-lawfy-text truncate;
+}
+
+.dashboard-list-sub {
+  @apply text-xs text-lawfy-text-soft mt-0.5;
+}
+
+.dashboard-tag {
+  @apply text-xs font-semibold px-2 py-1 rounded-md whitespace-nowrap;
+}
+
+.tag-vencimento-urgente {
+  @apply bg-red-50 text-red-700;
+}
+
+.tag-vencimento-alerta {
+  @apply bg-yellow-50 text-yellow-700;
+}
+
+.tag-vencimento-ok {
+  @apply bg-blue-50 text-blue-700;
+}
+
+.dashboard-bars {
+  @apply flex flex-col gap-4 p-4;
+}
+
+.dashboard-bar-row {
+  @apply flex items-center gap-3;
+}
+
+.dashboard-bar-label {
+  @apply text-sm text-lawfy-text-soft w-20 text-right;
+}
+
+.dashboard-bar-track {
+  @apply flex-1 h-2 bg-gray-100 rounded-full overflow-hidden;
+}
+
+.dashboard-bar-fill {
+  @apply h-full rounded-full transition-all duration-500;
+}
+
+.dashboard-bar-fill-red {
+  background-color: #e53e3e; 
+}
+
+.dashboard-bar-fill-green {
+  background-color: #3B6D11;
+}
+
+.dashboard-bar-fill-gray {
+  background-color: #888780;
+}
+
+.dashboard-bar-value {
+  @apply text-sm text-lawfy-text-soft w-6 text-right;
+}
+
 /* ============================= */
-/* 7. TABELAS */
+/* 8. TABELAS */
 /* ============================= */
 
 .table-container {
@@ -255,7 +401,7 @@
 }
 
 /* ============================= */
-/* 8. BADGES */
+/* 9. BADGES */
 /* ============================= */
 
 .badge-id {
@@ -303,7 +449,7 @@
 }
 
 /* ============================= */
-/* 9. MODAL */
+/* 10. MODAL */
 /* ============================= */
 
 .modal-overlay {
@@ -311,9 +457,13 @@
 }
 
 .modal-container {
-  @apply bg-white rounded-xl shadow-xl w-full
+  @apply bg-white rounded-xl shadow-xl w-full max-w-xl
          flex flex-col max-h-[90vh];
 }
+
+.modal-container.modal-sm { @apply max-w-sm; }
+.modal-container.modal-md { @apply max-w-xl; }
+.modal-container.modal-lg { @apply max-w-2xl; }
 
 .modal-header {
   @apply flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0;
@@ -331,8 +481,12 @@
   @apply p-6 overflow-y-auto;
 }
 
+.confirm-modal-actions {
+  @apply flex gap-3 justify-end;
+}
+
 /* ============================= */
-/* 10. ALERTAS */
+/* 11. ALERTAS */
 /* ============================= */
 
 .alert-error {
@@ -341,7 +495,7 @@
 }
 
 /* ============================= */
-/* 11. LOGIN */
+/* 12. LOGIN */
 /* ============================= */
 
 .auth-page-container {
@@ -354,7 +508,7 @@
 }
 
 /* ============================= */
-/* 12. BUSCA E FILTROS */
+/* 13. BUSCA E FILTROS */
 /* ============================= */
 
 .search-bar {
@@ -384,7 +538,7 @@
 }
 
 /* ============================= */
-/* 13. FORM LAYOUT */
+/* 14. FORM LAYOUT */
 /* ============================= */
 
 .form-section-divider {
@@ -418,7 +572,7 @@
 }
 
 /* ============================= */
-/* 14. TIPO SELECTOR */
+/* 15. TIPO SELECTOR */
 /* ============================= */
 
 .processo-tipo-option {
@@ -436,7 +590,7 @@
 }
 
 /* ============================= */
-/* 15. PARCELAS */
+/* 16. PARCELAS */
 /* ============================= */
 
 .parcelas-container {
@@ -460,7 +614,7 @@
 }
 
 /* ============================= */
-/* 16. FINANCEIRO */
+/* 17. FINANCEIRO */
 /* ============================= */
 
 .financeiro-preview {
@@ -468,15 +622,8 @@
          rounded-lg border border-lawfy-primary/20;
 }
 
-.btn-table-secondary {
-  @apply px-3 py-1.5 text-xs font-semibold rounded-lg
-         bg-gray-100 text-gray-600
-         hover:bg-gray-200
-         transition-all duration-200;
-}
-
 /* ============================= */
-/* 17. CLIENTE DETALHES */
+/* 18. CLIENTE DETALHES */
 /* ============================= */
 
 .cliente-nome-btn {
@@ -500,66 +647,7 @@
 }
 
 /* ============================= */
-/* TOPBAR */
-/* ============================= */
-
-.topbar-container {
-  @apply flex items-center justify-between px-8 py-4 bg-white border-b border-gray-200;
-}
-
-.topbar-title {
-  @apply text-sm font-medium text-lawfy-text-soft;
-}
-
-.user-badge {
-  @apply flex items-center gap-3;
-}
-
-.user-name {
-  @apply text-sm font-semibold text-lawfy-text;
-}
-
-.user-role {
-  @apply text-xs text-lawfy-text-soft;
-}
-
-.user-avatar {
-  @apply w-9 h-9 rounded-full bg-lawfy-primary text-white
-         flex items-center justify-center font-bold text-sm uppercase;
-}
-
-.topbar-dropdown {
-  @apply absolute right-0 top-12 w-56 bg-white rounded-xl shadow-lg
-         border border-gray-200 z-50 overflow-hidden;
-}
-
-.topbar-dropdown-header {
-  @apply px-4 py-3;
-}
-
-.topbar-dropdown-name {
-  @apply text-sm font-semibold text-lawfy-text;
-}
-
-.topbar-dropdown-email {
-  @apply text-xs text-lawfy-text-soft mt-0.5;
-}
-
-.topbar-dropdown-divider {
-  @apply h-px bg-gray-100;
-}
-
-.topbar-dropdown-item {
-  @apply w-full text-left px-4 py-3 text-sm text-lawfy-text
-         hover:bg-gray-50 transition-colors;
-}
-
-.topbar-dropdown-item-danger {
-  @apply text-lawfy-error hover:bg-red-50;
-}
-
-/* ============================= */
-/* PERFIL */
+/* 19. PERFIL */
 /* ============================= */
 
 .perfil-avatar-section {
@@ -598,7 +686,7 @@
 }
 
 /* ============================= */
-/* NOT FOUND */
+/* 20. NOT FOUND */
 /* ============================= */
 
 .notfound-container {
@@ -622,7 +710,7 @@
 }
 
 /* ============================= */
-/* GOOGLE CALENDAR WIDGET */
+/* 21. GOOGLE CALENDAR WIDGET */
 /* ============================= */
 
 .calendar-widget-empty {

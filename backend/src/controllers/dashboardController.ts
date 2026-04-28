@@ -4,80 +4,83 @@ import { AppError } from '../errors/appError';
 
 class DashboardController {
   async resumo(req: Request, res: Response) {
-    // 1. Instancia o cliente com o token do usuário (Respeita RLS)
-    const supabaseUser = createUserClient(req.token!);
-
     try {
-      // TOTAL DE CLIENTES
-      const { count: totalClientes, error: clienteError } = await supabaseUser
+      const supabase = createUserClient(req.token!);
+
+      // Total de clientes
+      const { count: totalClientes, error: clienteError } = await supabase
         .from('clientes')
         .select('*', { count: 'exact', head: true });
-
       if (clienteError) throw new AppError(clienteError.message, 400);
 
-      // PROCESSOS ATIVOS
-      const { count: processosAtivos, error: processoError } = await supabaseUser
+      // Processos por status
+      const { data: processos, error: processoError } = await supabase
         .from('processos')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'ativo');
-
+        .select('status');
       if (processoError) throw new AppError(processoError.message, 400);
 
-      // TOTAL DE PROCESSOS
-      const { count: totalProcessos, error: totalProcessoError } = await supabaseUser
-        .from('processos')
-        .select('*', { count: 'exact', head: true });
+      const processosAtivos = processos?.filter(p => p.status === 'ativo').length ?? 0;
+      const processosEncerrados = processos?.filter(p => p.status === 'encerrado').length ?? 0;
+      const processosArquivados = processos?.filter(p => p.status === 'arquivado').length ?? 0;
+      const totalProcessos = processos?.length ?? 0;
 
-      if (totalProcessoError) throw new AppError(totalProcessoError.message, 400);
-
-      // VALOR A RECEBER (Parcelas pendentes de receitas)
-      // Ajuste na sintaxe do Select para evitar erro 400 com RLS
-      const { data: parcelasPendentes, error: parcelasError } = await supabaseUser
+      // Valor a receber
+      const { data: parcelasPendentes, error: parcelasError } = await supabase
         .from('parcelas')
-        .select(`
-          valor_parcela,
-          financeiro!inner (
-            tipo
-          )
-        `)
+        .select('valor_parcela, financeiro!inner(tipo)')
         .eq('pago', false)
         .eq('financeiro.tipo', 'receita');
-
       if (parcelasError) throw new AppError(parcelasError.message, 400);
 
       const valorAReceber = parcelasPendentes?.reduce(
         (acc, p) => acc + Number(p.valor_parcela), 0
       ) ?? 0;
 
-      // PARCELAS VENCENDO (Próximos 30 dias)
+      // Parcelas vencendo nos próximos 30 dias com detalhes
       const hoje = new Date().toISOString().split('T')[0];
       const em30dias = new Date();
       em30dias.setDate(em30dias.getDate() + 30);
       const em30diasStr = em30dias.toISOString().split('T')[0];
 
-      const { count: parcelasVencendo, error: vencendoError } = await supabaseUser
+      const { data: parcelasVencendo, error: vencendoError } = await supabase
         .from('parcelas')
-        .select('*', { count: 'exact', head: true })
+        .select(`
+          id,
+          valor_parcela,
+          data_vencimento,
+          financeiro!inner (
+            tipo,
+            descricao,
+            processos (
+              nome_partes,
+              clientes (
+                nome
+              )
+            )
+          )
+        `)
         .eq('pago', false)
         .gte('data_vencimento', hoje)
-        .lte('data_vencimento', em30diasStr);
-
+        .lte('data_vencimento', em30diasStr)
+        .order('data_vencimento', { ascending: true })
+        .limit(5);
       if (vencendoError) throw new AppError(vencendoError.message, 400);
 
-      // RETORNO CONSOLIDADO
       return res.json({
         totalClientes: totalClientes ?? 0,
-        processosAtivos: processosAtivos ?? 0,
-        totalProcessos: totalProcessos ?? 0,
+        processosAtivos,
+        processosEncerrados,
+        processosArquivados,
+        totalProcessos,
         valorAReceber,
-        parcelasVencendo: parcelasVencendo ?? 0,
+        parcelasVencendo: parcelasVencendo ?? [],
+        totalParcelasVencendo: parcelasVencendo?.length ?? 0,
       });
 
     } catch (error: any) {
-      // Captura erros inesperados ou lançados pelo AppError
       const statusCode = error instanceof AppError ? error.statusCode : 500;
-      return res.status(statusCode).json({ 
-        erro: error.message || 'Erro interno no dashboard' 
+      return res.status(statusCode).json({
+        erro: error.message || 'Erro interno no dashboard'
       });
     }
   }

@@ -24,9 +24,9 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
   if (!isOpen) return null;
 
   const sizeClass = {
-    sm: 'max-w-sm',
-    md: 'max-w-md',
-    lg: 'max-w-lg',
+    sm: 'modal-sm',
+    md: 'modal-md',
+    lg: 'modal-lg',
   }[size];
 
   return (
