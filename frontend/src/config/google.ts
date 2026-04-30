@@ -1,5 +1,5 @@
 export const GOOGLE_CONFIG = {
-  clientId: '765922395002-tfd7hlmnt5bhvt7q291b2lpe1bkpt2pi.apps.googleusercontent.com',
+  clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '',
   scopes: [
     'https://www.googleapis.com/auth/calendar.readonly',
     'https://www.googleapis.com/auth/calendar.events.readonly',

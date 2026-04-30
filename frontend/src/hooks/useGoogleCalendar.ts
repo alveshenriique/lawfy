@@ -18,15 +18,24 @@ export interface CalendarEvent {
   htmlLink: string;
 }
 
-const STORAGE_KEY = '@Lawfy:googleToken';
+const TOKEN_KEY = '@Lawfy:googleToken';
+const EXPIRY_KEY = '@Lawfy:googleTokenExpiry';
+const FIVE_MINUTES = 5 * 60 * 1000;
+
+function isTokenExpired(): boolean {
+  const expiresAt = localStorage.getItem(EXPIRY_KEY);
+  if (!expiresAt) return true;
+  return Date.now() > Number(expiresAt) - FIVE_MINUTES;
+}
 
 export function useGoogleCalendar() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [isExpired, setIsExpired] = useState(false);
   const [savedToken, setSavedToken] = useState<string | null>(
-    () => localStorage.getItem(STORAGE_KEY)
+    () => localStorage.getItem(TOKEN_KEY)
   );
 
   const fetchEvents = useCallback(async (accessToken: string) => {
@@ -48,17 +57,12 @@ export function useGoogleCalendar() {
 
       const response = await fetch(
         `https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${accessToken}` } }
       );
 
       if (response.status === 401) {
-        localStorage.removeItem(STORAGE_KEY);
-        setSavedToken(null);
         setIsConnected(false);
+        setIsExpired(true);
         setEvents([]);
         return;
       }
@@ -68,6 +72,7 @@ export function useGoogleCalendar() {
       const data = await response.json();
       setEvents(data.items ?? []);
       setIsConnected(true);
+      setIsExpired(false);
     } catch (err) {
       setError('Não foi possível carregar os eventos do Google Calendar.');
       console.error(err);
@@ -76,18 +81,33 @@ export function useGoogleCalendar() {
     }
   }, []);
 
-  // useEffect ANTES do useGoogleLogin para manter ordem dos hooks
-  useEffect(() => {
-    if (savedToken) {
-      fetchEvents(savedToken);
-    }
-  }, [savedToken, fetchEvents]);
+  function saveToken(accessToken: string, expiresIn: number) {
+    const expiresAt = Date.now() + expiresIn * 1000;
+    localStorage.setItem(TOKEN_KEY, accessToken);
+    localStorage.setItem(EXPIRY_KEY, String(expiresAt));
+    setSavedToken(accessToken);
+    setIsExpired(false);
+  }
+
+  // Tentativa de reautenticação silenciosa (sem popup)
+  const silentLogin = useGoogleLogin({
+    scope: GOOGLE_CONFIG.scopes,
+    prompt: 'none',
+    onSuccess: (response) => {
+      saveToken(response.access_token, response.expires_in ?? 3600);
+      fetchEvents(response.access_token);
+    },
+    onError: () => {
+      // Silenciosa falhou — mostra botão de reconexão manual
+      setIsExpired(true);
+      setIsConnected(false);
+    },
+  });
 
   const login = useGoogleLogin({
     scope: GOOGLE_CONFIG.scopes,
     onSuccess: (response) => {
-      localStorage.setItem(STORAGE_KEY, response.access_token);
-      setSavedToken(response.access_token);
+      saveToken(response.access_token, response.expires_in ?? 3600);
       fetchEvents(response.access_token);
     },
     onError: () => {
@@ -95,11 +115,25 @@ export function useGoogleCalendar() {
     },
   });
 
+  useEffect(() => {
+    if (!savedToken) return;
+
+    if (isTokenExpired()) {
+      // Tenta reautenticar silenciosamente primeiro
+      silentLogin();
+    } else {
+      fetchEvents(savedToken);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function disconnect() {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(EXPIRY_KEY);
     setSavedToken(null);
     setEvents([]);
     setIsConnected(false);
+    setIsExpired(false);
     setError(null);
   }
 
@@ -124,6 +158,7 @@ export function useGoogleCalendar() {
     loading,
     error,
     isConnected,
+    isExpired,
     login,
     disconnect,
     formatEventDate,
