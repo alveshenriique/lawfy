@@ -2,19 +2,30 @@ import { useGoogleCalendar } from '../../hooks/useGoogleCalendar';
 import { Calendar, RefreshCw } from 'lucide-react';
 
 export function GoogleCalendarWidget() {
-  const { events, loading, error, isConnected, login, disconnect, formatEventDate } = useGoogleCalendar();
+  const { events, loading, error, isConnected, isExpired, login, disconnect, formatEventDate } = useGoogleCalendar();
 
   return (
     <div className="calendar-widget">
       {!isConnected ? (
         <div className="calendar-widget-empty">
           <Calendar size={32} className="calendar-widget-empty-icon" />
-          <p className="calendar-widget-empty-title">Agenda não conectada</p>
-          <p className="calendar-widget-empty-subtitle">
-            Conecte seu Google Calendar para ver seus próximos compromissos
-          </p>
+          {isExpired ? (
+            <>
+              <p className="calendar-widget-empty-title">Sessão expirada</p>
+              <p className="calendar-widget-empty-subtitle">
+                Sua conexão com o Google Calendar expirou. Reconecte para continuar vendo sua agenda.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="calendar-widget-empty-title">Agenda não conectada</p>
+              <p className="calendar-widget-empty-subtitle">
+                Conecte seu Google Calendar para ver seus próximos compromissos
+              </p>
+            </>
+          )}
           <button className="btn-table-edit" onClick={() => login()}>
-            Conectar Google Calendar
+            {isExpired ? 'Reconectar Google Calendar' : 'Conectar Google Calendar'}
           </button>
         </div>
       ) : (
