@@ -1,5 +1,7 @@
 # Lawfy — Sistema de Gestão Jurídica
 
+**Acesse o projeto em produção:** [lawfy-beta.vercel.app](https://lawfy-beta.vercel.app)
+
 Plataforma SaaS desenvolvida para escritórios de advocacia. Centraliza o controle de clientes, processos judiciais e financeiro em uma interface moderna, segura e responsiva.
 
 ---
@@ -82,6 +84,7 @@ lawfy/
 - **Row Level Security (RLS)** habilitado no banco: cada usuário acessa exclusivamente os próprios dados, independentemente da lógica da aplicação
 - Erros são tratados de forma centralizada sem expor stack traces ao cliente
 - Validação de entrada com Zod em todas as rotas que recebem dados
+- CORS restrito ao domínio do frontend via variável de ambiente
 
 ---
 
