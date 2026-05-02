@@ -2,19 +2,25 @@
 
 **Acesse o projeto em produção:** [lawfy-beta.vercel.app](https://lawfy-beta.vercel.app)
 
-Plataforma SaaS para gestão de escritórios de advocacia. Centraliza o controle de clientes, processos judiciais e financeiro em uma interface moderna e responsiva.
+Plataforma SaaS desenvolvida para escritórios de advocacia. Centraliza o controle de clientes, processos judiciais e financeiro em uma interface moderna, segura e responsiva.
+
+---
+
+## Visão Geral
+
+O Lawfy resolve um problema recorrente em escritórios de advocacia: a gestão fragmentada de informações entre planilhas, cadernos e sistemas desconexos. A plataforma unifica em um único ambiente o acompanhamento de clientes, o ciclo de vida dos processos e o controle financeiro completo — com dados isolados por usuário e acesso exclusivo via autenticação.
 
 ---
 
 ## Funcionalidades
 
-- **Autenticação segura** — cadastro, login e confirmação de e-mail via Supabase Auth
-- **Gestão de clientes** — cadastro completo com endereço, busca e filtros em tempo real
-- **Gestão de processos** — acompanhamento de ações judiciais com status, partes e vínculo ao cliente
-- **Controle financeiro** — lançamentos de receitas e despesas com parcelamento automático, quitação individual de parcelas e controle de vencimentos
-- **Dashboard executivo** — visão consolidada com KPIs clicáveis, gráfico de evolução financeira mensal e distribuição de processos por status
-- **Perfil do usuário** — atualização de nome e senha
-- **Integração Google Calendar** — visualização de eventos da agenda diretamente no dashboard
+- **Autenticação** — Cadastro, login com confirmação de e-mail e gerenciamento de sessão via JWT
+- **Gestão de clientes** — Cadastro completo com endereço, busca textual e filtros em tempo real
+- **Gestão de processos** — Acompanhamento de ações judiciais com número, partes, status e vínculo ao cliente
+- **Controle financeiro** — Lançamentos de receitas e despesas com parcelamento automático, quitação individual de parcelas e rastreamento de vencimentos
+- **Dashboard executivo** — KPIs clicáveis com navegação direta para listas filtradas, gráfico de evolução financeira mensal e distribuição de processos por status
+- **Perfil do usuário** — Atualização de nome e senha
+- **Google Calendar** — Visualização de eventos da agenda do advogado diretamente no dashboard
 
 ---
 
@@ -76,6 +82,7 @@ lawfy/
 - Todas as rotas da API exigem JWT válido no header `Authorization: Bearer`
 - O token é validado no Supabase a cada requisição — sem estado local no servidor
 - **Row Level Security (RLS)** habilitado no banco: cada usuário acessa exclusivamente os próprios dados, independentemente da lógica da aplicação
+- Erros são tratados de forma centralizada sem expor stack traces ao cliente
 - Validação de entrada com Zod em todas as rotas que recebem dados
 - CORS restrito ao domínio do frontend via variável de ambiente
 
@@ -83,14 +90,14 @@ lawfy/
 
 ## Decisões de Design
 
-**Filtros via URL params** — Os filtros das páginas de listagem são persistidos na URL, permitindo que os cards do dashboard naveguem diretamente para listas pré-filtradas.
+**Filtros via URL params** — Os filtros das páginas de listagem são persistidos na URL, o que permite que os cards clicáveis do dashboard naveguem diretamente para listas pré-filtradas sem estado compartilhado entre componentes.
 
-**Dois clientes Supabase no backend** — Um cliente administrativo para autenticação e um por requisição com o token do usuário, garantindo que o RLS seja aplicado corretamente em todas as queries.
+**Dois clientes Supabase no backend** — Um cliente administrativo para autenticação e um cliente criado por requisição com o token do usuário para operações de banco. Isso garante que o RLS seja aplicado corretamente em todas as queries.
 
-**Skeleton loaders** — Reduzem a percepção de latência preservando a estrutura visual da página durante o carregamento.
+**Skeleton loaders ao invés de spinners** — Reduz a percepção de latência ao preservar a estrutura visual da página durante o carregamento.
 
 ---
 
 ## Status do Projeto
 
-Em desenvolvimento ativo. O sistema está sendo utilizado em produção por um escritório de advocacia.
+Em desenvolvimento ativo. O sistema está sendo utilizado em ambiente de produção por um escritório de advocacia.
