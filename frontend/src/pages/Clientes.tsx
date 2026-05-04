@@ -168,7 +168,11 @@ export function Clientes() {
                         <Share2 size={15} />
                       </button>
                     )}
-                    <button className="btn-table-delete" onClick={() => setClienteToDelete(cliente)}>
+                    <button
+                      className={`btn-table-delete ${!isOwner(cliente) ? 'opacity-35 cursor-not-allowed' : ''}`}
+                      onClick={() => isOwner(cliente) && setClienteToDelete(cliente)}
+                      title={!isOwner(cliente) ? 'Apenas a responsável pode excluir' : undefined}
+                    >
                       Excluir
                     </button>
                   </td>
