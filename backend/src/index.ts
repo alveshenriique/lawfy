@@ -7,6 +7,8 @@ import { clienteRoutes } from './routes/clienteRoutes';
 import { perfilRoutes } from './routes/perfilRoutes';
 import { processoRoutes } from './routes/processoRoutes';
 import { financeiroRoutes } from './routes/financeiroRoutes';
+import { compartilhamentoRoutes } from './routes/compartilhamentoRoutes';
+import compartilhamentoController from './controllers/compartilhamentoController';
 import { authMiddleware } from './middlewares/authMiddleware';
 import { errorMiddleware } from './middlewares/errorMiddleware';
 
@@ -39,6 +41,8 @@ app.use(authMiddleware);
 // Rotas protegidas
 app.use('/perfil', perfilRoutes);
 app.use('/clientes', clienteRoutes);
+app.use('/clientes/:id/compartilhamento', compartilhamentoRoutes);
+app.get('/compartilhamento', (req, res) => compartilhamentoController.meusCompartilhados(req, res));
 app.use('/processos', processoRoutes);
 app.use('/financeiro', financeiroRoutes);
 app.use('/dashboard', dashboardRoutes);
