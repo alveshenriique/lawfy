@@ -7,6 +7,8 @@ interface ConfirmModalProps {
   title: string;
   message: string;
   isLoading?: boolean;
+  confirmLabel?: string;
+  confirmVariant?: 'primary' | 'danger';
 }
 
 export function ConfirmModal({
@@ -16,6 +18,8 @@ export function ConfirmModal({
   title,
   message,
   isLoading,
+  confirmLabel = 'Confirmar exclusão',
+  confirmVariant = 'danger',
 }: ConfirmModalProps) {
   if (!isOpen) return null;
 
@@ -38,12 +42,12 @@ export function ConfirmModal({
               Cancelar
             </Button>
             <Button
-              variant="danger"
+              variant={confirmVariant}
               fullWidth={false}
               onClick={onConfirm}
               loading={isLoading}
             >
-              Confirmar exclusão
+              {confirmLabel}
             </Button>
           </div>
         </div>

@@ -58,7 +58,7 @@ export function Dashboard() {
     <Layout>
       <header className="dashboard-header">
         <h2 className="page-title">
-          Olá, Dr. {user?.nome || 'Advogado'}
+          Olá, Dra. {user?.nome || 'Advogada'}
         </h2>
         <p className="page-subtitle">Acompanhe o status do escritório para hoje.</p>
       </header>
