@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react';
 import { SideBar } from './SideBar';
 import { TopBar } from './TopBar';
+import { BottomNav } from './BottomNav';
 
 interface LayoutProps {
   children: ReactNode;
@@ -16,6 +17,7 @@ export function Layout({ children }: LayoutProps) {
           {children}
         </section>
       </main>
+      <BottomNav />
     </div>
   );
 }
