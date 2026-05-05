@@ -149,7 +149,11 @@ export function Financeiro() {
             </thead>
             <tbody>
               {financeirosFiltrados.length > 0 ? (
-                financeirosFiltrados.map((item) => (
+                financeirosFiltrados.map((item) => {
+                  const parcelasOrdemCronologica = [...(item.parcelas ?? [])].sort((a, b) =>
+                    new Date(a.data_vencimento).getTime() - new Date(b.data_vencimento).getTime()
+                  );
+                  return (
                   <Fragment key={item.id}>
                     <tr className="table-row">
                       <td className="table-cell-main">{item.descricao}</td>
@@ -206,52 +210,56 @@ export function Financeiro() {
                               </tr>
                             </thead>
                             <tbody>
-                              {item.parcelas.map((parcela, index) => (
-                                <tr key={parcela.id} className="parcelas-row">
-                                  <td className="parcelas-cell">
-                                    {index + 1}/{item.parcelas!.length}
-                                  </td>
-                                  <td className="parcelas-cell">
-                                    {new Date(parcela.data_vencimento).toLocaleDateString('pt-BR')}
-                                  </td>
-                                  <td className="parcelas-cell text-right">
-                                    {new Intl.NumberFormat('pt-BR', {
-                                      style: 'currency',
-                                      currency: 'BRL',
-                                    }).format(parcela.valor_parcela)}
-                                  </td>
-                                  <td className="parcelas-cell text-center">
-                                    <span className={`badge-status-processo ${parcela.pago ? 'badge-status-pago' : 'badge-status-pendente'}`}>
-                                      {parcela.pago ? 'PAGO' : 'ABERTO'}
-                                    </span>
-                                  </td>
-                                  <td className="parcelas-cell text-center">
-                                    <div className="flex items-center justify-center gap-2">
-                                      <button
-                                        className="btn-table-edit"
-                                        onClick={() => setParcelaToEdit(parcela)}
-                                        disabled={saving}
-                                      >
-                                        Editar
-                                      </button>
-                                      <button
-                                        className="btn-table-edit"
-                                        onClick={() => handleTogglePagamento(parcela.id, parcela.pago)}
-                                        disabled={saving}
-                                      >
-                                        {parcela.pago ? 'Desfazer' : 'Quitar'}
-                                      </button>
-                                    </div>
-                                  </td>
-                                </tr>
-                              ))}
+                              {item.parcelas.map((parcela) => {
+                                const numeroParcela = parcelasOrdemCronologica.findIndex(p => p.id === parcela.id) + 1;
+                                return (
+                                  <tr key={parcela.id} className="parcelas-row">
+                                    <td className="parcelas-cell">
+                                      {numeroParcela}/{item.parcelas!.length}
+                                    </td>
+                                    <td className="parcelas-cell">
+                                      {new Date(parcela.data_vencimento + 'T00:00:00').toLocaleDateString('pt-BR')}
+                                    </td>
+                                    <td className="parcelas-cell text-right">
+                                      {new Intl.NumberFormat('pt-BR', {
+                                        style: 'currency',
+                                        currency: 'BRL',
+                                      }).format(parcela.valor_parcela)}
+                                    </td>
+                                    <td className="parcelas-cell text-center">
+                                      <span className={`badge-status-processo ${parcela.pago ? 'badge-status-pago' : 'badge-status-pendente'}`}>
+                                        {parcela.pago ? 'PAGO' : 'ABERTO'}
+                                      </span>
+                                    </td>
+                                    <td className="parcelas-cell text-center">
+                                      <div className="flex items-center justify-center gap-2">
+                                        <button
+                                          className="btn-table-edit"
+                                          onClick={() => setParcelaToEdit(parcela)}
+                                          disabled={saving}
+                                        >
+                                          Editar
+                                        </button>
+                                        <button
+                                          className="btn-table-edit"
+                                          onClick={() => handleTogglePagamento(parcela.id, parcela.pago)}
+                                          disabled={saving}
+                                        >
+                                          {parcela.pago ? 'Desfazer' : 'Quitar'}
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
                             </tbody>
                           </table>
                         </td>
                       </tr>
                     )}
                   </Fragment>
-                ))
+                  );
+                })
               ) : (
                 <tr>
                   <td colSpan={7}>
