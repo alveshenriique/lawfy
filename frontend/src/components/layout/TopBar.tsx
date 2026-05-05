@@ -51,7 +51,7 @@ export function TopBar() {
         >
           <div className="text-right">
             <p className="user-name">{user?.nome}</p>
-            <span className="user-role">Advogado</span>
+            <span className="user-role">Advogada</span>
           </div>
           <div className="user-avatar">
             {user?.nome?.charAt(0)}

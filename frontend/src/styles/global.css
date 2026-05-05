@@ -193,11 +193,11 @@
 }
 
 .content-inner {
-  @apply p-6 md:p-8 w-full max-w-6xl mx-auto;
+  @apply p-4 md:p-8 w-full max-w-6xl mx-auto pb-24 md:pb-8;
 }
 
 .page-header-actions {
-  @apply flex justify-between items-center mb-6 pb-4 border-b border-gray-200;
+  @apply flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6 pb-4 border-b border-gray-200;
 }
 
 .page-title {
@@ -213,7 +213,7 @@
 /* ============================= */
 
 .sidebar-container {
-  @apply w-72 bg-lawfy-primary text-white flex flex-col p-6;
+  @apply hidden md:flex w-72 bg-lawfy-primary text-white flex-col p-6;
 }
 
 .sidebar-nav {
@@ -238,7 +238,7 @@
 /* ============================= */
 
 .topbar-container {
-  @apply flex items-center justify-between px-8 py-4 bg-white border-b border-gray-200;
+  @apply flex items-center justify-between px-4 md:px-8 py-4 bg-white border-b border-gray-200;
 }
 
 .topbar-title {
@@ -297,7 +297,7 @@
 /* ============================= */
 
 .stats-grid {
-  @apply grid grid-cols-4 gap-6 mb-6;
+  @apply grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6;
 }
 
 .stat-card {
@@ -339,11 +339,11 @@
 }
 
 .dashboard-charts-grid {
-  @apply grid grid-cols-3 gap-6;
+  @apply grid grid-cols-1 md:grid-cols-3 gap-6;
 }
 
 .dashboard-chart-main {
-  @apply col-span-2;
+  @apply col-span-1 md:col-span-2;
 }
 
 .dashboard-chart-legend {
@@ -363,7 +363,7 @@
 .dashboard-chart-legend-despesa::before { background-color: #ef4444; }
 
 .dashboard-double-grid {
-  @apply grid grid-cols-2 gap-6;
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
 }
 
 .dashboard-panel {
@@ -451,7 +451,7 @@
 /* ============================= */
 
 .table-container {
-  @apply w-full bg-white rounded-xl border border-gray-200 shadow-sm;
+  @apply w-full bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto;
 }
 
 .lawfy-table {
@@ -662,19 +662,19 @@
 }
 
 .form-row {
-  @apply flex gap-3;
+  @apply flex flex-col sm:flex-row gap-3;
 }
 
 .form-col-grow {
-  @apply flex-1;
+  @apply flex-1 min-w-0;
 }
 
 .form-col-small {
-  @apply w-24;
+  @apply w-full sm:w-24;
 }
 
 .form-col-estado {
-  @apply w-20;
+  @apply w-full sm:w-20;
 }
 
 /* ============================= */
