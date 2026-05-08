@@ -55,7 +55,10 @@ class CompartilhamentoController {
       .from('cliente_permissoes')
       .upsert(inserts, { onConflict: 'cliente_id,user_id', ignoreDuplicates: true });
 
-    if (error) throw new AppError(error.message, 400);
+    if (error) {
+      console.error('[compartilhar] erro upsert:', JSON.stringify(error));
+      throw new AppError(error.message, 400);
+    }
 
     return res.status(201).json({ message: 'Compartilhado com sucesso' });
   }
