@@ -49,11 +49,16 @@ class CompartilhamentoController {
     const outros = users.filter(u => u.id !== req.user!.id);
     if (outros.length === 0) return res.json({ message: 'Nenhum outro usuário no sistema', usuarios: [] });
 
+    await supabase
+      .from('cliente_permissoes')
+      .delete()
+      .eq('cliente_id', Number(clienteId));
+
     const inserts = outros.map(u => ({ cliente_id: Number(clienteId), user_id: u.id }));
 
     const { error } = await supabase
       .from('cliente_permissoes')
-      .upsert(inserts, { onConflict: 'cliente_id,user_id', ignoreDuplicates: true });
+      .insert(inserts);
 
     if (error) throw new AppError(error.message, 400);
 
