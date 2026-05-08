@@ -49,7 +49,7 @@ class CompartilhamentoController {
     const outros = users.filter(u => u.id !== req.user!.id);
     if (outros.length === 0) return res.json({ message: 'Nenhum outro usuário no sistema', usuarios: [] });
 
-    const inserts = outros.map(u => ({ cliente_id: clienteId, user_id: u.id }));
+    const inserts = outros.map(u => ({ cliente_id: Number(clienteId), user_id: u.id }));
 
     const { error } = await supabase
       .from('cliente_permissoes')
@@ -79,7 +79,7 @@ class CompartilhamentoController {
     const { error } = await supabase
       .from('cliente_permissoes')
       .delete()
-      .eq('cliente_id', clienteId);
+      .eq('cliente_id', Number(clienteId));
 
     if (error) throw new AppError(error.message, 400);
 
