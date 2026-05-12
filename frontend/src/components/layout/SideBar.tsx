@@ -22,7 +22,9 @@ export function SideBar() {
               isActive ? "nav-link nav-link-active" : "nav-link"
             }
           >
-            <Icon size={18} />
+            <span className="w-5 flex justify-center shrink-0">
+              <Icon size={18} />
+            </span>
             {label}
           </NavLink>
         ))}
