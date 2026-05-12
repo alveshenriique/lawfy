@@ -54,10 +54,7 @@ class CompartilhamentoController {
       .delete()
       .eq('cliente_id', Number(clienteId));
 
-    if (deleteError) {
-      console.error('[compartilhar] erro delete:', JSON.stringify(deleteError));
-      throw new AppError(deleteError.message, 400);
-    }
+    if (deleteError) throw new AppError(deleteError.message, 400);
 
     const inserts = outros.map(u => ({ cliente_id: Number(clienteId), user_id: u.id }));
 
@@ -65,10 +62,7 @@ class CompartilhamentoController {
       .from('cliente_permissoes')
       .insert(inserts);
 
-    if (insertError) {
-      console.error('[compartilhar] erro insert:', JSON.stringify(insertError));
-      throw new AppError(insertError.message, 400);
-    }
+    if (insertError) throw new AppError(insertError.message, 400);
 
     return res.status(201).json({ message: 'Compartilhado com sucesso' });
   }
