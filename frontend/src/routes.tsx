@@ -5,6 +5,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Clientes } from './pages/Clientes'; 
 import { Processos } from './pages/Processos'; 
 import { Financeiro } from './pages/Financeiro';
+import { Relatorios } from './pages/Relatorios';
 import { NotFound } from './pages/NotFound';
 import { PrivateRoute } from './components/auth/PrivateRoute';
 
@@ -32,7 +33,11 @@ export function Routes() {
       <Route path="/financeiro" element={
         <PrivateRoute><Financeiro /></PrivateRoute>
       } />
-      
+
+      <Route path="/relatorios" element={
+        <PrivateRoute><Relatorios /></PrivateRoute>
+      } />
+
       <Route path="*" element={<NotFound />} />
     </ReactRoutes>
   );

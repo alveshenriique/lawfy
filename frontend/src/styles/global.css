@@ -122,6 +122,13 @@
          hover:bg-lawfy-primary-light active:scale-[0.97];
 }
 
+.btn-export {
+  @apply px-3.5 py-1.5 text-sm font-semibold rounded-lg
+         bg-lawfy-primary text-white
+         hover:bg-lawfy-primary-light
+         transition-all duration-200 flex items-center;
+}
+
 .btn-table-edit {
   @apply px-3 py-1.5 text-xs font-semibold rounded-lg
          bg-lawfy-primary-soft text-lawfy-primary
