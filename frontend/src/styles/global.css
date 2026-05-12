@@ -213,7 +213,7 @@
 /* ============================= */
 
 .sidebar-container {
-  @apply hidden md:flex w-72 bg-lawfy-primary text-white flex-col p-6;
+  @apply hidden md:flex w-64 bg-lawfy-primary text-white flex-col p-6;
 }
 
 .sidebar-nav {
