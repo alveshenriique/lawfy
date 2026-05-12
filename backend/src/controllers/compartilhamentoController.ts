@@ -49,18 +49,26 @@ class CompartilhamentoController {
     const outros = users.filter(u => u.id !== req.user!.id);
     if (outros.length === 0) return res.json({ message: 'Nenhum outro usuário no sistema', usuarios: [] });
 
-    await supabase
+    const { error: deleteError } = await supabase
       .from('cliente_permissoes')
       .delete()
       .eq('cliente_id', Number(clienteId));
 
+    if (deleteError) {
+      console.error('[compartilhar] erro delete:', JSON.stringify(deleteError));
+      throw new AppError(deleteError.message, 400);
+    }
+
     const inserts = outros.map(u => ({ cliente_id: Number(clienteId), user_id: u.id }));
 
-    const { error } = await supabase
+    const { error: insertError } = await supabase
       .from('cliente_permissoes')
       .insert(inserts);
 
-    if (error) throw new AppError(error.message, 400);
+    if (insertError) {
+      console.error('[compartilhar] erro insert:', JSON.stringify(insertError));
+      throw new AppError(insertError.message, 400);
+    }
 
     return res.status(201).json({ message: 'Compartilhado com sucesso' });
   }
