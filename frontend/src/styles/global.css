@@ -117,7 +117,7 @@
 }
 
 .btn-new-entity {
-  @apply w-auto px-5 py-2.5 bg-lawfy-primary text-white rounded-lawfy font-semibold
+  @apply px-5 py-2.5 bg-lawfy-primary text-white rounded-lawfy font-semibold
          transition-all flex items-center justify-center shadow-md
          hover:bg-lawfy-primary-light active:scale-[0.97];
 }

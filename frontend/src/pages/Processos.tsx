@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Scale } from 'lucide-react';
+import { Scale, FileDown } from 'lucide-react';
+import { exportarProcessosCSV, exportarProcessosPDF } from '../utils/exportar';
 import { Layout } from '../components/layout/Layout';
 import { Modal } from '../components/ui/Modal';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
@@ -67,14 +68,13 @@ export function Processos() {
           <p className="page-subtitle">Acompanhe o andamento das causas e ações judiciais.</p>
         </div>
 
-        <button className="btn-new-entity" onClick={() => setIsCreateModalOpen(true)}>
+        <button className="btn-new-entity w-44" onClick={() => setIsCreateModalOpen(true)}>
           Novo Processo
         </button>
       </header>
 
       {error && <div className="alert-error">{error}</div>}
 
-      {/* Busca e filtros - IGUAL AO FINANCEIRO */}
       <div className="mb-6">
         <div className="search-bar">
           <input
@@ -94,6 +94,14 @@ export function Processos() {
             <option value="arquivado">Arquivado</option>
             <option value="encerrado">Encerrado</option>
           </select>
+          <div className="flex gap-2 w-44">
+            <button className="btn-export flex-1 justify-center" onClick={() => exportarProcessosCSV(processosFiltrados)}>
+              <FileDown size={14} className="mr-1" />CSV
+            </button>
+            <button className="btn-export flex-1 justify-center" onClick={() => exportarProcessosPDF(processosFiltrados)}>
+              <FileDown size={14} className="mr-1" />PDF
+            </button>
+          </div>
         </div>
 
         {/* Condição: Só aparece se houver busca ou filtro de status */}

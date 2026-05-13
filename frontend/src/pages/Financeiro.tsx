@@ -1,6 +1,7 @@
 import { useState, useMemo, Fragment } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Wallet } from 'lucide-react';
+import { Wallet, FileDown } from 'lucide-react';
+import { exportarFinanceiroCSV, exportarFinanceiroPDF } from '../utils/exportar';
 import { Layout } from '../components/layout/Layout';
 import { Modal } from '../components/ui/Modal';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
@@ -85,14 +86,13 @@ export function Financeiro() {
           <h2 className="page-title">Financeiro</h2>
           <p className="page-subtitle">Controle de receitas, despesas e honorários.</p>
         </div>
-        <button className="btn-new-entity" onClick={() => setIsCreateModalOpen(true)}>
+        <button className="btn-new-entity w-44" onClick={() => setIsCreateModalOpen(true)}>
           Novo Lançamento
         </button>
       </header>
 
       {error && <div className="alert-error">{error}</div>}
 
-      {/* Busca e filtros */}
       <div className="mb-6">
         <div className="search-bar">
           <input
@@ -120,6 +120,14 @@ export function Financeiro() {
             <option value="pendente">Aberto</option>
             <option value="pago">Pago</option>
           </select>
+          <div className="flex gap-2 w-44">
+            <button className="btn-export flex-1 justify-center" onClick={() => exportarFinanceiroCSV(financeirosFiltrados, filtroStatus)}>
+              <FileDown size={14} className="mr-1" />CSV
+            </button>
+            <button className="btn-export flex-1 justify-center" onClick={() => exportarFinanceiroPDF(financeirosFiltrados, filtroStatus)}>
+              <FileDown size={14} className="mr-1" />PDF
+            </button>
+          </div>
         </div>
 
         {(search || filtroTipo || filtroStatus) && (

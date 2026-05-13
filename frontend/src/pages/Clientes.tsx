@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Users, Share2 } from 'lucide-react';
+import { Users, Share2, FileDown } from 'lucide-react';
 import { Layout } from '../components/layout/Layout';
 import { Modal } from '../components/ui/Modal';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
@@ -10,6 +10,7 @@ import { useClientes } from '../hooks/useClientes';
 import { useCompartilhamento } from '../hooks/useCompartilhamento';
 import { useAuth } from '../hooks/useAuth';
 import { formatCpfCnpj, formatTelefone } from '../utils/formatters';
+import { exportarClientesCSV, exportarClientesPDF } from '../utils/exportar';
 import type { Cliente } from '../types/cliente';
 import type { ClienteFormData } from '../lib/validations/cliente';
 
@@ -96,7 +97,7 @@ export function Clientes() {
           <h2 className="page-title">Clientes</h2>
           <p className="page-subtitle">Gerencie os dados cadastrais de seus clientes.</p>
         </div>
-        <button className="btn-new-entity" onClick={() => setIsCreateModalOpen(true)}>
+        <button className="btn-new-entity w-44" onClick={() => setIsCreateModalOpen(true)}>
           Novo Cliente
         </button>
       </header>
@@ -112,6 +113,14 @@ export function Clientes() {
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
+          <div className="flex gap-2 w-44">
+            <button className="btn-export flex-1 justify-center" onClick={() => exportarClientesCSV(clientesFiltrados)}>
+              <FileDown size={14} className="mr-1" />CSV
+            </button>
+            <button className="btn-export flex-1 justify-center" onClick={() => exportarClientesPDF(clientesFiltrados)}>
+              <FileDown size={14} className="mr-1" />PDF
+            </button>
+          </div>
         </div>
         {search && (
           <div className="mt-2 px-1">

@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import type { Financeiro, Parcela } from '../types/financeiro';
+import type { Financeiro } from '../types/financeiro';
 import type { Cliente } from '../types/cliente';
 import type { Processo } from '../types/processo';
 import { formatCpfCnpj, formatTelefone } from './formatters';
