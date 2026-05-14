@@ -4,7 +4,7 @@
 
 <h1 align="center">Lawfy — Sistema de Gestão Jurídica</h1>
 
-<p align="center">
+<p>
   <strong>Acesse o projeto em produção:</strong> <a href="https://lawfy-beta.vercel.app">lawfy-beta.vercel.app</a>
 </p>
 
