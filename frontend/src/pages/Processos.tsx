@@ -118,7 +118,7 @@ export function Processos() {
             <option value="arquivado">Arquivado</option>
             <option value="encerrado">Encerrado</option>
           </select>
-          <div className="flex gap-2 w-44">
+          <div className="flex gap-2 w-full sm:w-44">
             <button className="btn-export flex-1 justify-center" onClick={() => exportarProcessosCSV(processosSorted)}>
               <FileDown size={14} className="mr-1" />CSV
             </button>

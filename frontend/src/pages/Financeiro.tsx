@@ -161,7 +161,7 @@ export function Financeiro() {
             <option value="pendente">Aberto</option>
             <option value="pago">Pago</option>
           </select>
-          <div className="flex gap-2 w-44">
+          <div className="flex gap-2 w-full sm:w-44">
             <button className="btn-export flex-1 justify-center" onClick={() => exportarFinanceiroCSV(financeirosSorted, filtroStatus)}>
               <FileDown size={14} className="mr-1" />CSV
             </button>
