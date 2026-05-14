@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Users, Share2, FileDown } from 'lucide-react';
+import { Users, Share2, FileDown, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { Layout } from '../components/layout/Layout';
 import { Modal } from '../components/ui/Modal';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
@@ -25,6 +25,18 @@ export function Clientes() {
   const [clienteToView, setClienteToView] = useState<Cliente | null>(null);
   const [clienteToShare, setClienteToShare] = useState<Cliente | null>(null);
   const [search, setSearch] = useState('');
+  const [sortField, setSortField] = useState<'nome' | 'cpf' | null>(null);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+
+  function handleSort(field: 'nome' | 'cpf') {
+    if (sortField === field) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    else { setSortField(field); setSortDir('asc'); }
+  }
+
+  function sortIcon(field: 'nome' | 'cpf') {
+    if (sortField !== field) return <ArrowUpDown size={13} className="opacity-40 shrink-0" />;
+    return sortDir === 'asc' ? <ArrowUp size={13} className="shrink-0" /> : <ArrowDown size={13} className="shrink-0" />;
+  }
 
   const clientesFiltrados = useMemo(() => {
     if (!search.trim()) return clientes;
@@ -34,6 +46,24 @@ export function Clientes() {
       cliente.cpf_cnpj.replace(/\D/g, '').includes(termo)
     );
   }, [clientes, search]);
+
+  const clientesSorted = useMemo(() => {
+    if (!sortField) return clientesFiltrados;
+    return [...clientesFiltrados].sort((a, b) => {
+      if (sortField === 'nome') {
+        const cmp = a.nome.localeCompare(b.nome, 'pt-BR');
+        return sortDir === 'asc' ? cmp : -cmp;
+      }
+      const digA = a.cpf_cnpj.replace(/\D/g, '').length;
+      const digB = b.cpf_cnpj.replace(/\D/g, '').length;
+      if (digA !== digB) {
+        // asc: CPF (11) antes de CNPJ (14); desc: CNPJ antes de CPF
+        return sortDir === 'asc' ? digA - digB : digB - digA;
+      }
+      const cmp = a.cpf_cnpj.localeCompare(b.cpf_cnpj);
+      return sortDir === 'asc' ? cmp : -cmp;
+    });
+  }, [clientesFiltrados, sortField, sortDir]);
 
   async function handleCreateCliente(data: ClienteFormData) {
     try {
@@ -114,10 +144,10 @@ export function Clientes() {
             onChange={e => setSearch(e.target.value)}
           />
           <div className="flex gap-2 w-44">
-            <button className="btn-export flex-1 justify-center" onClick={() => exportarClientesCSV(clientesFiltrados)}>
+            <button className="btn-export flex-1 justify-center" onClick={() => exportarClientesCSV(clientesSorted)}>
               <FileDown size={14} className="mr-1" />CSV
             </button>
-            <button className="btn-export flex-1 justify-center" onClick={() => exportarClientesPDF(clientesFiltrados)}>
+            <button className="btn-export flex-1 justify-center" onClick={() => exportarClientesPDF(clientesSorted)}>
               <FileDown size={14} className="mr-1" />PDF
             </button>
           </div>
@@ -138,14 +168,18 @@ export function Clientes() {
           <table className="lawfy-table">
             <thead className="table-header">
               <tr>
-                <th className="table-header-cell">Nome / Razão Social</th>
-                <th className="table-header-cell">CPF / CNPJ</th>
+                <th className="table-header-cell cursor-pointer select-none" onClick={() => handleSort('nome')}>
+                  <span className="inline-flex items-center gap-1">Nome / Razão Social{sortIcon('nome')}</span>
+                </th>
+                <th className="table-header-cell cursor-pointer select-none" onClick={() => handleSort('cpf')}>
+                  <span className="inline-flex items-center gap-1">CPF / CNPJ{sortIcon('cpf')}</span>
+                </th>
                 <th className="table-header-cell">Telefone</th>
                 <th className="table-header-cell text-center">Ações</th>
               </tr>
             </thead>
             <tbody>
-              {clientesFiltrados.map((cliente) => (
+              {clientesSorted.map((cliente) => (
                 <tr key={cliente.id} className="table-row">
                   <td className="table-cell-main">
                     <div className="flex items-center gap-2">
