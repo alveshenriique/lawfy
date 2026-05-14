@@ -143,7 +143,7 @@ export function Clientes() {
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          <div className="flex gap-2 w-44">
+          <div className="flex gap-2 w-full sm:w-44">
             <button className="btn-export flex-1 justify-center" onClick={() => exportarClientesCSV(clientesSorted)}>
               <FileDown size={14} className="mr-1" />CSV
             </button>

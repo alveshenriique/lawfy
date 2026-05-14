@@ -625,11 +625,11 @@
 /* ============================= */
 
 .search-bar {
-  @apply flex items-center gap-4 mb-4;
+  @apply flex flex-wrap items-center gap-3 mb-4;
 }
 
 .search-input {
-  @apply flex-1 p-3 bg-white border border-gray-200 rounded-lawfy
+  @apply w-full sm:flex-1 p-3 bg-white border border-gray-200 rounded-lawfy
          text-lawfy-text outline-none placeholder:text-gray-300 transition-all;
 }
 
@@ -638,7 +638,7 @@
 }
 
 .search-filter {
-  @apply p-3 bg-white border border-gray-200 rounded-lawfy
+  @apply w-full sm:w-auto p-3 bg-white border border-gray-200 rounded-lawfy
          text-lawfy-text outline-none transition-all cursor-pointer;
 }
 
