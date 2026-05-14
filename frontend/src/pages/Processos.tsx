@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Scale, FileDown } from 'lucide-react';
+import { Scale, FileDown, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { exportarProcessosCSV, exportarProcessosPDF } from '../utils/exportar';
 import { Layout } from '../components/layout/Layout';
 import { Modal } from '../components/ui/Modal';
@@ -23,6 +23,18 @@ export function Processos() {
   const [searchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [filtroStatus, setFiltroStatus] = useState(searchParams.get('status') ?? '');
+  const [sortField, setSortField] = useState<'cliente' | 'status' | 'data' | 'tipo' | null>(null);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+
+  function handleSort(field: 'cliente' | 'status' | 'data' | 'tipo') {
+    if (sortField === field) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    else { setSortField(field); setSortDir('asc'); }
+  }
+
+  function sortIcon(field: 'cliente' | 'status' | 'data' | 'tipo') {
+    if (sortField !== field) return <ArrowUpDown size={13} className="opacity-40 shrink-0" />;
+    return sortDir === 'asc' ? <ArrowUp size={13} className="shrink-0" /> : <ArrowDown size={13} className="shrink-0" />;
+  }
 
   const processosFiltrados = useMemo(() => {
     return processos.filter(processo => {
@@ -36,6 +48,18 @@ export function Processos() {
       return matchSearch && matchStatus;
     });
   }, [processos, search, filtroStatus]);
+
+  const processosSorted = useMemo(() => {
+    if (!sortField) return processosFiltrados;
+    return [...processosFiltrados].sort((a, b) => {
+      let cmp = 0;
+      if (sortField === 'cliente') cmp = (a.clientes?.nome ?? '').localeCompare(b.clientes?.nome ?? '', 'pt-BR');
+      else if (sortField === 'status') cmp = a.status.localeCompare(b.status);
+      else if (sortField === 'data') cmp = a.criado_em.localeCompare(b.criado_em);
+      else if (sortField === 'tipo') cmp = a.tipo.localeCompare(b.tipo);
+      return sortDir === 'asc' ? cmp : -cmp;
+    });
+  }, [processosFiltrados, sortField, sortDir]);
 
   async function handleCreateProcesso(data: ProcessoFormData) {
     try {
@@ -95,10 +119,10 @@ export function Processos() {
             <option value="encerrado">Encerrado</option>
           </select>
           <div className="flex gap-2 w-44">
-            <button className="btn-export flex-1 justify-center" onClick={() => exportarProcessosCSV(processosFiltrados)}>
+            <button className="btn-export flex-1 justify-center" onClick={() => exportarProcessosCSV(processosSorted)}>
               <FileDown size={14} className="mr-1" />CSV
             </button>
-            <button className="btn-export flex-1 justify-center" onClick={() => exportarProcessosPDF(processosFiltrados)}>
+            <button className="btn-export flex-1 justify-center" onClick={() => exportarProcessosPDF(processosSorted)}>
               <FileDown size={14} className="mr-1" />PDF
             </button>
           </div>
@@ -121,17 +145,23 @@ export function Processos() {
           <table className="lawfy-table">
             <thead className="table-header">
               <tr>
-                <th className="table-header-cell">Tipo</th>
+                <th className="table-header-cell cursor-pointer select-none" onClick={() => handleSort('tipo')}>
+                  <span className="inline-flex items-center gap-1">Tipo{sortIcon('tipo')}</span>
+                </th>
                 <th className="table-header-cell">Nº do Processo</th>
                 <th className="table-header-cell">Partes</th>
-                <th className="table-header-cell">Cliente</th>
-                <th className="table-header-cell text-center">Status</th>
+                <th className="table-header-cell cursor-pointer select-none" onClick={() => handleSort('cliente')}>
+                  <span className="inline-flex items-center gap-1">Cliente{sortIcon('cliente')}</span>
+                </th>
+                <th className="table-header-cell text-center cursor-pointer select-none" onClick={() => handleSort('status')}>
+                  <span className="inline-flex items-center justify-center gap-1">Status{sortIcon('status')}</span>
+                </th>
                 <th className="table-header-cell text-center">Ações</th>
               </tr>
             </thead>
             <tbody>
-              {processosFiltrados.length > 0 ? (
-                processosFiltrados.map((processo) => (
+              {processosSorted.length > 0 ? (
+                processosSorted.map((processo) => (
                   <tr key={processo.id} className="table-row">
                     <td className="table-cell-secondary capitalize">
                       {processo.tipo}

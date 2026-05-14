@@ -1,6 +1,6 @@
 import { useState, useMemo, Fragment } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Wallet, FileDown } from 'lucide-react';
+import { Wallet, FileDown, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { exportarFinanceiroCSV, exportarFinanceiroPDF } from '../utils/exportar';
 import { Layout } from '../components/layout/Layout';
 import { Modal } from '../components/ui/Modal';
@@ -23,11 +23,35 @@ export function Financeiro() {
   const [financeiroToEdit, setFinanceiroToEdit] = useState<Financeiro | null>(null);
   const [financeiroToDelete, setFinanceiroToDelete] = useState<Financeiro | null>(null);
   const [parcelaToEdit, setParcelaToEdit] = useState<Parcela | null>(null);
-  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
+
+  function toggleExpanded(id: number) {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
   const [searchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [filtroTipo, setFiltroTipo] = useState(searchParams.get('tipo') ?? '');
   const [filtroStatus, setFiltroStatus] = useState(searchParams.get('status') ?? '');
+  const [sortField, setSortField] = useState<'cliente' | 'valor' | 'vencimento' | null>(null);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+
+  function handleSort(field: 'cliente' | 'valor' | 'vencimento') {
+    if (sortField === field) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDir('asc');
+    }
+  }
+
+  function sortIcon(field: 'cliente' | 'valor' | 'vencimento') {
+    if (sortField !== field) return <ArrowUpDown size={13} className="opacity-40 shrink-0" />;
+    return sortDir === 'asc' ? <ArrowUp size={13} className="shrink-0" /> : <ArrowDown size={13} className="shrink-0" />;
+  }
 
   const financeirosFiltrados = useMemo(() => {
     return financeiros.filter(item => {
@@ -41,6 +65,23 @@ export function Financeiro() {
       return matchSearch && matchTipo && matchStatus;
     });
   }, [financeiros, search, filtroTipo, filtroStatus]);
+
+  const financeirosSorted = useMemo(() => {
+    if (!sortField) return financeirosFiltrados;
+    return [...financeirosFiltrados].sort((a, b) => {
+      let cmp = 0;
+      if (sortField === 'cliente') {
+        cmp = (a.processos?.clientes?.nome ?? '').localeCompare(b.processos?.clientes?.nome ?? '', 'pt-BR');
+      } else if (sortField === 'valor') {
+        cmp = a.valor_total - b.valor_total;
+      } else if (sortField === 'vencimento') {
+        const aData = [...(a.parcelas ?? [])].sort((x, y) => x.data_vencimento.localeCompare(y.data_vencimento))[0]?.data_vencimento ?? '';
+        const bData = [...(b.parcelas ?? [])].sort((x, y) => x.data_vencimento.localeCompare(y.data_vencimento))[0]?.data_vencimento ?? '';
+        cmp = aData.localeCompare(bData);
+      }
+      return sortDir === 'asc' ? cmp : -cmp;
+    });
+  }, [financeirosFiltrados, sortField, sortDir]);
 
   async function handleCreateFinanceiro(data: FinanceiroFormData) {
     try {
@@ -121,10 +162,10 @@ export function Financeiro() {
             <option value="pago">Pago</option>
           </select>
           <div className="flex gap-2 w-44">
-            <button className="btn-export flex-1 justify-center" onClick={() => exportarFinanceiroCSV(financeirosFiltrados, filtroStatus)}>
+            <button className="btn-export flex-1 justify-center" onClick={() => exportarFinanceiroCSV(financeirosSorted, filtroStatus)}>
               <FileDown size={14} className="mr-1" />CSV
             </button>
-            <button className="btn-export flex-1 justify-center" onClick={() => exportarFinanceiroPDF(financeirosFiltrados, filtroStatus)}>
+            <button className="btn-export flex-1 justify-center" onClick={() => exportarFinanceiroPDF(financeirosSorted, filtroStatus)}>
               <FileDown size={14} className="mr-1" />PDF
             </button>
           </div>
@@ -147,17 +188,23 @@ export function Financeiro() {
             <thead className="table-header">
               <tr>
                 <th className="table-header-cell">Descrição</th>
-                <th className="table-header-cell">Cliente</th>
+                <th className="table-header-cell cursor-pointer select-none" onClick={() => handleSort('cliente')}>
+                  <span className="inline-flex items-center gap-1">Cliente {sortIcon('cliente')}</span>
+                </th>
                 <th className="table-header-cell">Tipo</th>
-                <th className="table-header-cell text-right">Valor Total</th>
-                <th className="table-header-cell text-center">Parcelas</th>
+                <th className="table-header-cell text-right cursor-pointer select-none" onClick={() => handleSort('valor')}>
+                  <span className="inline-flex items-center gap-1">Valor Total{sortIcon('valor')}</span>
+                </th>
+                <th className="table-header-cell text-center cursor-pointer select-none" onClick={() => handleSort('vencimento')}>
+                  <span className="inline-flex items-center justify-center gap-1">Parcelas {sortIcon('vencimento')}</span>
+                </th>
                 <th className="table-header-cell text-center">Status</th>
                 <th className="table-header-cell text-center">Ações</th>
               </tr>
             </thead>
             <tbody>
-              {financeirosFiltrados.length > 0 ? (
-                financeirosFiltrados.map((item) => {
+              {financeirosSorted.length > 0 ? (
+                financeirosSorted.map((item) => {
                   const parcelasOrdemCronologica = [...(item.parcelas ?? [])].sort((a, b) =>
                     new Date(a.data_vencimento).getTime() - new Date(b.data_vencimento).getTime()
                   );
@@ -178,9 +225,9 @@ export function Financeiro() {
                       <td className="table-cell text-center">
                         <button
                           className="btn-table-edit"
-                          onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
+                          onClick={() => toggleExpanded(item.id)}
                         >
-                          {expandedId === item.id ? 'Ocultar' : `Ver ${item.parcelas?.length ?? 0}`}
+                          {expandedIds.has(item.id) ? 'Ocultar' : `Ver ${item.parcelas?.length ?? 0}`}
                         </button>
                       </td>
                       <td className="table-cell text-center">
@@ -204,7 +251,7 @@ export function Financeiro() {
                       </td>
                     </tr>
 
-                    {expandedId === item.id && item.parcelas && (
+                    {expandedIds.has(item.id) && item.parcelas && (
                       <tr>
                         <td colSpan={7} className="parcelas-container">
                           <table className="parcelas-table">

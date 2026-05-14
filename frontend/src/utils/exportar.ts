@@ -74,6 +74,14 @@ function parcelasParaLinhas(financeiros: Financeiro[], statusFiltro: string): st
       ]);
     }
   }
+  linhas.sort((a, b) => {
+    const parseData = (str: string) => {
+      const [d, m, y] = str.split('/');
+      return new Date(`${y}-${m}-${d}`).getTime();
+    };
+    return parseData(a[3]) - parseData(b[3]);
+  });
+
   return linhas;
 }
 

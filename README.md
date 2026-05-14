@@ -1,6 +1,12 @@
-# Lawfy — Sistema de Gestão Jurídica
+<p align="center">
+  <img src="frontend/public/logo.svg" alt="Lawfy" height="80">
+</p>
 
-**Acesse o projeto em produção:** [lawfy-beta.vercel.app](https://lawfy-beta.vercel.app)
+<h1 align="center">Lawfy — Sistema de Gestão Jurídica</h1>
+
+<p align="center">
+  <strong>Acesse o projeto em produção:</strong> <a href="https://lawfy-beta.vercel.app">lawfy-beta.vercel.app</a>
+</p>
 
 Plataforma SaaS desenvolvida para escritórios de advocacia. Centraliza o controle de clientes, processos judiciais e financeiro em uma interface moderna, segura e responsiva.
 
@@ -15,10 +21,14 @@ O Lawfy resolve um problema recorrente em escritórios de advocacia: a gestão f
 ## Funcionalidades
 
 - **Autenticação** — Cadastro, login com confirmação de e-mail e gerenciamento de sessão via JWT
-- **Gestão de clientes** — Cadastro completo com endereço, busca textual e filtros em tempo real
-- **Gestão de processos** — Acompanhamento de ações judiciais com número, partes, status e vínculo ao cliente
-- **Controle financeiro** — Lançamentos de receitas e despesas com parcelamento automático, quitação individual de parcelas e rastreamento de vencimentos
+- **Gestão de clientes** — Cadastro completo com endereço, busca textual, filtros e ordenação em tempo real
+- **Gestão de processos** — Acompanhamento de ações judiciais com número, partes, tipo, status e vínculo ao cliente
+- **Controle financeiro** — Lançamentos de receitas e despesas com parcelamento automático, quitação individual de parcelas, rastreamento de vencimentos e visualização de múltiplas parcelas simultaneamente
+- **Compartilhamento de clientes** — Compartilhamento de clientes entre advogadas do escritório com controle de acesso por proprietário
+- **Exportação de dados** — Exportação de clientes, processos e financeiro em CSV e PDF com respeito aos filtros e ordenação ativos
+- **Ordenação de tabelas** — Ordenação por múltiplas colunas em todas as listagens, refletida nas exportações
 - **Dashboard executivo** — KPIs clicáveis com navegação direta para listas filtradas, gráfico de evolução financeira mensal e distribuição de processos por status
+- **Interface responsiva** — Layout adaptado para dispositivos móveis com navegação inferior dedicada
 - **Perfil do usuário** — Atualização de nome e senha
 - **Google Calendar** — Visualização de eventos da agenda do advogado diretamente no dashboard
 
