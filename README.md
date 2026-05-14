@@ -102,7 +102,13 @@ lawfy/
 
 **Filtros via URL params** — Os filtros das páginas de listagem são persistidos na URL, o que permite que os cards clicáveis do dashboard naveguem diretamente para listas pré-filtradas sem estado compartilhado entre componentes.
 
-**Dois clientes Supabase no backend** — Um cliente administrativo para autenticação e um cliente criado por requisição com o token do usuário para operações de banco. Isso garante que o RLS seja aplicado corretamente em todas as queries.
+**Exportação contextual** — Os botões de exportação CSV e PDF ficam nas próprias páginas de listagem, ao lado dos filtros ativos. Isso garante que o usuário exporte exatamente o que está visualizando — com filtros e ordenação já aplicados — sem precisar reconfigurar nada em uma tela separada.
+
+**Ordenação client-side** — A ordenação das tabelas é feita via `useMemo` no frontend, sem round-trips ao banco. Dado o volume de dados típico de um escritório de advocacia, essa abordagem é suficiente e mantém a UI instantânea. A ordenação ativa é respeitada pelas exportações.
+
+**Instâncias Supabase isoladas por requisição** — Um cliente administrativo centralizado cuida da autenticação, enquanto cada requisição autenticada cria sua própria instância com o token do usuário para operações no banco. Isso garante que o RLS seja aplicado corretamente para qualquer número de usuários, tornando a arquitetura naturalmente multi-tenant.
+
+**Controle de compartilhamento na camada de aplicação** — A tabela de permissões entre advogadas não utiliza RLS, pois o backend já valida a propriedade do recurso antes de qualquer operação. Isso simplifica a lógica de acesso sem abrir mão da segurança.
 
 **Skeleton loaders ao invés de spinners** — Reduz a percepção de latência ao preservar a estrutura visual da página durante o carregamento.
 
