@@ -5,7 +5,7 @@
 <h1 align="center">Lawfy — Sistema de Gestão Jurídica</h1>
 
 <p>
-  <strong>Acesse o projeto em produção:</strong> <a href="https://lawfy-beta.vercel.app">lawfy-beta.vercel.app</a>
+  <strong>Acesse o projeto em produção:</strong> <a href="https://lawfy.app.br">lawfy.app.br</a>
 </p>
 
 Plataforma SaaS desenvolvida para escritórios de advocacia. Centraliza o controle de clientes, processos judiciais e financeiro em uma interface moderna, segura e responsiva.
