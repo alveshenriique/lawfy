@@ -68,11 +68,10 @@ export function useFinanceiro() {
   }
 
   // MÉTODO ATUALIZADO: Recebe o ID e o novo estado (pago: true ou false)
-  async function quitarParcela(id: number, pago: boolean) {
+  async function quitarParcela(id: number, pago: boolean, data_pagamento?: string) {
     try {
       setSaving(true);
-      // Enviamos o status para o service, que por sua vez enviará ao backend
-      await financeiroService.quitarParcela(id, pago);
+      await financeiroService.quitarParcela(id, pago, data_pagamento);
       await loadFinanceiro();
       
       if (pago) {
