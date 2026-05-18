@@ -522,7 +522,7 @@
 }
 
 .badge-status-processo {
-  @apply px-2 py-1 text-xs font-bold rounded-md;
+  @apply inline-block min-w-[3.5rem] px-2 py-1 text-xs font-bold rounded-md text-center;
 }
 
 .badge-status-ativo {
@@ -629,7 +629,7 @@
 }
 
 .search-input {
-  @apply w-full sm:flex-1 p-3 bg-white border border-gray-200 rounded-lawfy
+  @apply w-full sm:flex-1 p-2 bg-white border border-gray-200 rounded-lawfy
          text-lawfy-text outline-none placeholder:text-gray-300 transition-all;
 }
 
@@ -638,7 +638,7 @@
 }
 
 .search-filter {
-  @apply w-full sm:w-auto p-3 bg-white border border-gray-200 rounded-lawfy
+  @apply w-full sm:w-auto p-2 bg-white border border-gray-200 rounded-lawfy
          text-lawfy-text outline-none transition-all cursor-pointer;
 }
 
