@@ -1,6 +1,6 @@
 import { useState, useMemo, Fragment } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Wallet, FileDown, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Wallet, FileDown, ArrowUpDown, ArrowUp, ArrowDown, CalendarRange } from 'lucide-react';
 import { exportarFinanceiroCSV, exportarFinanceiroPDF } from '../utils/exportar';
 import { Layout } from '../components/layout/Layout';
 import { Modal } from '../components/ui/Modal';
@@ -36,6 +36,8 @@ export function Financeiro() {
   const [search, setSearch] = useState('');
   const [filtroTipo, setFiltroTipo] = useState(searchParams.get('tipo') ?? '');
   const [filtroStatus, setFiltroStatus] = useState(searchParams.get('status') ?? '');
+  const [dataInicio, setDataInicio] = useState('');
+  const [dataFim, setDataFim] = useState('');
   const [sortField, setSortField] = useState<'cliente' | 'valor' | 'vencimento' | null>(null);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
 
@@ -62,9 +64,14 @@ export function Financeiro() {
       const matchTipo = !filtroTipo || item.tipo === filtroTipo;
       const matchStatus = !filtroStatus || item.status === filtroStatus;
 
-      return matchSearch && matchTipo && matchStatus;
+      const matchPeriodo = (!dataInicio && !dataFim) || (item.parcelas ?? []).some(p => {
+        if (!p.pago || !p.data_pagamento) return false;
+        return (!dataInicio || p.data_pagamento >= dataInicio) && (!dataFim || p.data_pagamento <= dataFim);
+      });
+
+      return matchSearch && matchTipo && matchStatus && matchPeriodo;
     });
-  }, [financeiros, search, filtroTipo, filtroStatus]);
+  }, [financeiros, search, filtroTipo, filtroStatus, dataInicio, dataFim]);
 
   const financeirosSorted = useMemo(() => {
     if (!sortField) return financeirosFiltrados;
@@ -161,6 +168,30 @@ export function Financeiro() {
             <option value="pendente">Aberto</option>
             <option value="pago">Pago</option>
           </select>
+          <div className="flex items-center gap-2 shrink-0">
+            <CalendarRange size={15} className="text-lawfy-text-soft shrink-0" />
+            <input
+              type="date"
+              className="search-filter w-34.5!"
+              value={dataInicio}
+              onChange={e => setDataInicio(e.target.value)}
+            />
+            <span className="text-lawfy-text-soft text-sm shrink-0">até</span>
+            <input
+              type="date"
+              className="search-filter w-34.5!"
+              value={dataFim}
+              onChange={e => setDataFim(e.target.value)}
+            />
+            {(dataInicio || dataFim) && (
+              <button
+                className="text-xs text-lawfy-text-soft hover:text-lawfy-primary transition-colors shrink-0"
+                onClick={() => { setDataInicio(''); setDataFim(''); }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
           <div className="flex gap-2 w-full sm:w-44">
             <button className="btn-export flex-1 justify-center" onClick={() => exportarFinanceiroCSV(financeirosSorted, filtroStatus)}>
               <FileDown size={14} className="mr-1" />CSV
@@ -171,7 +202,7 @@ export function Financeiro() {
           </div>
         </div>
 
-        {(search || filtroTipo || filtroStatus) && (
+        {(search || filtroTipo || filtroStatus || dataInicio || dataFim) && (
           <div className="mt-2 px-1">
             <span className="search-results font-medium">
               {financeirosFiltrados.length} resultado{financeirosFiltrados.length !== 1 ? 's' : ''} encontrado{financeirosFiltrados.length !== 1 ? 's' : ''}
@@ -184,22 +215,22 @@ export function Financeiro() {
         {loading ? (
           <TableSkeleton rows={5} />
         ) : (
-          <table className="lawfy-table">
+          <table className="lawfy-table table-fixed">
             <thead className="table-header">
               <tr>
                 <th className="table-header-cell">Descrição</th>
-                <th className="table-header-cell cursor-pointer select-none" onClick={() => handleSort('cliente')}>
+                <th className="table-header-cell w-36 cursor-pointer select-none" onClick={() => handleSort('cliente')}>
                   <span className="inline-flex items-center gap-1">Cliente {sortIcon('cliente')}</span>
                 </th>
-                <th className="table-header-cell">Tipo</th>
-                <th className="table-header-cell text-right cursor-pointer select-none" onClick={() => handleSort('valor')}>
+                <th className="table-header-cell w-24">Tipo</th>
+                <th className="table-header-cell w-36 text-right cursor-pointer select-none" onClick={() => handleSort('valor')}>
                   <span className="inline-flex items-center gap-1">Valor Total{sortIcon('valor')}</span>
                 </th>
-                <th className="table-header-cell text-center cursor-pointer select-none" onClick={() => handleSort('vencimento')}>
+                <th className="table-header-cell w-24 text-center cursor-pointer select-none" onClick={() => handleSort('vencimento')}>
                   <span className="inline-flex items-center justify-center gap-1">Parcelas {sortIcon('vencimento')}</span>
                 </th>
-                <th className="table-header-cell text-center">Status</th>
-                <th className="table-header-cell text-center">Ações</th>
+                <th className="table-header-cell w-28 text-center">Status</th>
+                <th className="table-header-cell w-44 text-center">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -235,82 +266,73 @@ export function Financeiro() {
                           {item.status === 'pendente' ? 'ABERTO' : item.status.toUpperCase()}
                         </span>
                       </td>
-                      <td className="table-cell-actions">
-                        <button
-                          className="btn-table-edit"
-                          onClick={() => setFinanceiroToEdit(item)}
-                        >
-                          Editar
-                        </button>
-                        <button
-                          className="btn-table-delete"
-                          onClick={() => setFinanceiroToDelete(item)}
-                        >
-                          Excluir
-                        </button>
+                      <td className="table-cell text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            className="btn-table-edit"
+                            onClick={() => setFinanceiroToEdit(item)}
+                          >
+                            Editar
+                          </button>
+                          <button
+                            className="btn-table-delete"
+                            onClick={() => setFinanceiroToDelete(item)}
+                          >
+                            Excluir
+                          </button>
+                        </div>
                       </td>
                     </tr>
 
                     {expandedIds.has(item.id) && item.parcelas && (
-                      <tr>
-                        <td colSpan={7} className="parcelas-container">
-                          <table className="parcelas-table">
-                            <thead>
-                              <tr>
-                                <th className="parcelas-header-cell">Parcela</th>
-                                <th className="parcelas-header-cell">Vencimento</th>
-                                <th className="parcelas-header-cell text-right">Valor</th>
-                                <th className="parcelas-header-cell text-center">Status</th>
-                                <th className="parcelas-header-cell text-center">Ações</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {item.parcelas.map((parcela) => {
-                                const numeroParcela = parcelasOrdemCronologica.findIndex(p => p.id === parcela.id) + 1;
-                                return (
-                                  <tr key={parcela.id} className="parcelas-row">
-                                    <td className="parcelas-cell">
-                                      {numeroParcela}/{item.parcelas!.length}
-                                    </td>
-                                    <td className="parcelas-cell">
-                                      {new Date(parcela.data_vencimento + 'T00:00:00').toLocaleDateString('pt-BR')}
-                                    </td>
-                                    <td className="parcelas-cell text-right">
-                                      {new Intl.NumberFormat('pt-BR', {
-                                        style: 'currency',
-                                        currency: 'BRL',
-                                      }).format(parcela.valor_parcela)}
-                                    </td>
-                                    <td className="parcelas-cell text-center">
-                                      <span className={`badge-status-processo ${parcela.pago ? 'badge-status-pago' : 'badge-status-pendente'}`}>
-                                        {parcela.pago ? 'PAGO' : 'ABERTO'}
-                                      </span>
-                                    </td>
-                                    <td className="parcelas-cell text-center">
-                                      <div className="flex items-center justify-center gap-2">
-                                        <button
-                                          className="btn-table-edit"
-                                          onClick={() => setParcelaToEdit(parcela)}
-                                          disabled={saving}
-                                        >
-                                          Editar
-                                        </button>
-                                        <button
-                                          className="btn-table-edit"
-                                          onClick={() => handleTogglePagamento(parcela.id, parcela.pago)}
-                                          disabled={saving}
-                                        >
-                                          {parcela.pago ? 'Desfazer' : 'Quitar'}
-                                        </button>
-                                      </div>
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
-                        </td>
-                      </tr>
+                      <>
+                        <tr className="bg-gray-50/60 border-t border-gray-100">
+                          <td className="table-cell pl-8 text-xs text-lawfy-text-soft font-medium">Parcela</td>
+                          <td className="table-cell text-xs text-lawfy-text-soft font-medium">Vencimento</td>
+                          <td className="table-cell text-xs text-lawfy-text-soft font-medium">Pagamento</td>
+                          <td className="table-cell text-xs text-lawfy-text-soft font-medium text-right">Valor</td>
+                          <td />
+                          <td className="table-cell text-xs text-lawfy-text-soft font-medium text-center">Status</td>
+                          <td className="table-cell text-xs text-lawfy-text-soft font-medium text-center">Ações</td>
+                        </tr>
+                        {item.parcelas.map((parcela) => {
+                          const numeroParcela = parcelasOrdemCronologica.findIndex(p => p.id === parcela.id) + 1;
+                          return (
+                            <tr key={parcela.id} className="parcelas-row bg-gray-50/40">
+                              <td className="table-cell pl-8 text-lawfy-text-soft">
+                                {numeroParcela}/{item.parcelas!.length}
+                              </td>
+                              <td className="table-cell">
+                                {new Date(parcela.data_vencimento + 'T00:00:00').toLocaleDateString('pt-BR')}
+                              </td>
+                              <td className="table-cell">
+                                {parcela.pago && parcela.data_pagamento
+                                  ? new Date(parcela.data_pagamento + 'T00:00:00').toLocaleDateString('pt-BR')
+                                  : '—'}
+                              </td>
+                              <td className="table-cell text-right font-semibold">
+                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(parcela.valor_parcela)}
+                              </td>
+                              <td />
+                              <td className="table-cell text-center">
+                                <span className={`badge-status-processo ${parcela.pago ? 'badge-status-pago' : 'badge-status-pendente'}`}>
+                                  {parcela.pago ? 'PAGO' : 'ABERTO'}
+                                </span>
+                              </td>
+                              <td className="table-cell text-center">
+                                <div className="flex items-center justify-center gap-2">
+                                  <button className="btn-table-edit w-20" onClick={() => setParcelaToEdit(parcela)} disabled={saving}>
+                                    Editar
+                                  </button>
+                                  <button className="btn-table-edit w-20" onClick={() => handleTogglePagamento(parcela.id, parcela.pago)} disabled={saving}>
+                                    {parcela.pago ? 'Desfazer' : 'Quitar'}
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </>
                     )}
                   </Fragment>
                   );
