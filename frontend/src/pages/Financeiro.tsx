@@ -376,6 +376,7 @@ export function Financeiro() {
         message={`Deseja excluir o lançamento "${financeiroToDelete?.descricao}"? Todas as parcelas vinculadas também serão excluídas.`}
         isLoading={saving}
       />
+
     </Layout>
   );
 }

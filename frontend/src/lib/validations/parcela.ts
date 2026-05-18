@@ -6,6 +6,7 @@ export const parcelaSchema = z.object({
   }).positive("O valor deve ser maior que zero"),
   data_vencimento: z.string()
     .min(1, "Informe a data de vencimento"),
+  data_pagamento: z.string().optional(),
 });
 
 export type ParcelaFormData = z.infer<typeof parcelaSchema>;

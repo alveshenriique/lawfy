@@ -20,6 +20,7 @@ export function ParcelaForm({ onSubmit, isLoading, defaultValues }: ParcelaFormP
     defaultValues: {
       valor_parcela: defaultValues?.valor_parcela ?? 0,
       data_vencimento: defaultValues?.data_vencimento ?? '',
+      data_pagamento: defaultValues?.data_pagamento ?? '',
     },
   });
 
@@ -88,6 +89,28 @@ export function ParcelaForm({ onSubmit, isLoading, defaultValues }: ParcelaFormP
           </div>
         )}
       />
+
+      {/* Data de Pagamento — só aparece quando a parcela já foi paga */}
+      {defaultValues?.pago && (
+        <Controller
+          name="data_pagamento"
+          control={control}
+          render={({ field }) => (
+            <div className="flex flex-col gap-2 w-full text-left">
+              <label className="input-label" htmlFor="data_pagamento">
+                Data de Pagamento
+              </label>
+              <input
+                id="data_pagamento"
+                type="date"
+                className="input-base"
+                value={field.value ?? ''}
+                onChange={e => field.onChange(e.target.value)}
+              />
+            </div>
+          )}
+        />
+      )}
 
       <div className="pt-2">
         <Button type="submit" loading={isLoading}>

@@ -85,7 +85,7 @@ class FinanceiroController {
     try {
       const supabase = createUserClient(req.token!);
       const { id } = req.params;
-      const { processo_id, tipo, valor_total, descricao, status } = req.body;
+      const { processo_id, tipo, valor_total, descricao, status, numero_parcelas } = req.body;
 
       const { data, error } = await supabase
         .from('financeiro')
@@ -96,6 +96,53 @@ class FinanceiroController {
 
       if (error) throw new AppError(error.message, 400);
       if (!data) throw new AppError('Registro não encontrado ou sem permissão', 404);
+
+      if (numero_parcelas) {
+        const { data: parcelas } = await supabase
+          .from('parcelas')
+          .select('*')
+          .eq('financeiro_id', id)
+          .order('data_vencimento', { ascending: true });
+
+        const pagas = (parcelas ?? []).filter((p: any) => p.pago);
+        const naoPagas = (parcelas ?? []).filter((p: any) => !p.pago);
+        const novasNaoPagas = Number(numero_parcelas) - pagas.length;
+
+        if (novasNaoPagas < 0) {
+          throw new AppError('O número de parcelas não pode ser menor que as já pagas.', 400);
+        }
+
+        if (naoPagas.length > 0) {
+          await supabase
+            .from('parcelas')
+            .delete()
+            .in('id', naoPagas.map((p: any) => p.id));
+        }
+
+        if (novasNaoPagas > 0) {
+          const totalPago = pagas.reduce((acc: number, p: any) => acc + Number(p.valor_parcela), 0);
+          const saldoRestante = Number(valor_total) - totalPago;
+          const valorPorParcela = saldoRestante / novasNaoPagas;
+
+          const dataBase = pagas.length > 0
+            ? new Date(pagas[pagas.length - 1].data_vencimento + 'T00:00:00')
+            : new Date();
+
+          const novasParcelas = Array.from({ length: novasNaoPagas }, (_, i) => {
+            const dataVencimento = new Date(dataBase);
+            dataVencimento.setMonth(dataVencimento.getMonth() + (i + 1));
+            return {
+              financeiro_id: Number(id),
+              valor_parcela: valorPorParcela,
+              data_vencimento: dataVencimento.toISOString().split('T')[0],
+              pago: false,
+              user_id: req.user!.id,
+            };
+          });
+
+          await supabase.from('parcelas').insert(novasParcelas);
+        }
+      }
 
       return res.json({
         message: 'Lançamento atualizado com sucesso',
@@ -111,15 +158,15 @@ class FinanceiroController {
     try {
       const supabase = createUserClient(req.token!);
       const { id } = req.params;
-      const { pago } = req.body; 
-      
+      const { pago, data_pagamento } = req.body;
+
       const hoje = new Date().toISOString().split('T')[0];
 
       const { data, error } = await supabase
         .from('parcelas')
-        .update({ 
-          pago: pago, 
-          data_pagamento: pago ? hoje : null 
+        .update({
+          pago: pago,
+          data_pagamento: pago ? (data_pagamento ?? hoje) : null
         })
         .eq('id', id)
         .select()
@@ -157,7 +204,7 @@ class FinanceiroController {
     try {
       const supabase = createUserClient(req.token!);
       const { id } = req.params;
-      const { valor_parcela, data_vencimento } = req.body;
+      const { valor_parcela, data_vencimento, data_pagamento } = req.body;
 
       // 1. Busca dados da parcela e do financeiro pai
       const { data: atual, error: errBusca } = await supabase
@@ -167,7 +214,17 @@ class FinanceiroController {
         .single();
 
       if (errBusca || !atual) throw new AppError("Parcela não encontrada", 404);
-      if (atual.pago) throw new AppError("Não é possível editar uma parcela já paga", 400);
+
+      // Parcelas pagas só permitem editar a data de pagamento
+      if (atual.pago) {
+        const { error } = await supabase
+          .from('parcelas')
+          .update({ data_pagamento: data_pagamento ?? atual.data_pagamento })
+          .eq('id', id);
+
+        if (error) throw new AppError(error.message, 400);
+        return res.json({ message: 'Data de pagamento atualizada', reequilibrado: false });
+      }
 
       // VERIFICAÇÃO CRUCIAL: O valor realmente mudou?
       // Se apenas a data mudou, o 'valorAlterado' será false.

@@ -22,10 +22,10 @@ export const financeiroService = {
     api.delete(`/financeiro/${id}`),
 
   // Rota de status (Quitar/Desfazer) - Bate em /parcelas/:id/status
-  quitarParcela: (id: number, pago: boolean) =>
-    api.patch(`/financeiro/parcelas/${id}/status`, { pago }).then(r => r.data),
+  quitarParcela: (id: number, pago: boolean, data_pagamento?: string) =>
+    api.patch(`/financeiro/parcelas/${id}/status`, { pago, data_pagamento }).then(r => r.data),
 
   // Rota de edição (Reequilíbrio) - Bate em /parcelas/:id/editar
-  editarParcela: (id: number, data: { valor_parcela: number; data_vencimento: string }) =>
+  editarParcela: (id: number, data: { valor_parcela: number; data_vencimento: string; data_pagamento?: string }) =>
     api.patch(`/financeiro/parcelas/${id}/editar`, data).then(r => r.data),
 };
