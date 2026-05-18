@@ -3,7 +3,7 @@ import { LayoutDashboard, Users, Scale, Wallet } from 'lucide-react';
 import { Logo } from '../ui/Logo';
 
 const navItems = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/clientes', label: 'Clientes', icon: Users },
   { to: '/processos', label: 'Processos', icon: Scale },
   { to: '/financeiro', label: 'Financeiro', icon: Wallet },

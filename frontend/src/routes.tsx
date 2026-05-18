@@ -11,13 +11,13 @@ import { PrivateRoute } from './components/auth/PrivateRoute';
 export function Routes() {
   return (
     <ReactRoutes>
-      <Route path="/" element={<Login />} />
+      <Route path="/login" element={<Login />} />
 
     <Route path="/perfil" element={
       <PrivateRoute><Perfil /></PrivateRoute>
       } />
-      
-      <Route path="/dashboard" element={
+
+      <Route path="/" element={
         <PrivateRoute><Dashboard /></PrivateRoute>
       } />
 

@@ -12,7 +12,7 @@ export function Login() {
   useEffect(() => {
     if (user) {
       // replace: true remove a tela de login da pilha de histórico do navegador
-      navigate('/dashboard', { replace: true });
+      navigate('/', { replace: true });
     }
   }, [user, navigate]);
 
