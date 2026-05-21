@@ -48,7 +48,7 @@ function criarPDF(titulo: string, colunas: string[], linhas: string[][]) {
 
 // ─── FINANCEIRO ──────────────────────────────────────────────────────────────
 
-function parcelasParaLinhas(financeiros: Financeiro[], statusFiltro: string): string[][] {
+function parcelasParaLinhas(financeiros: Financeiro[], statusFiltro: string, dataInicio?: string, dataFim?: string): string[][] {
   const linhas: string[][] = [];
   for (const f of financeiros) {
     for (const p of f.parcelas ?? []) {
@@ -60,8 +60,16 @@ function parcelasParaLinhas(financeiros: Financeiro[], statusFiltro: string): st
       const statusParcela = p.pago ? 'Pago' : vencido ? 'Vencido' : 'Em aberto';
 
       if (statusFiltro === 'pago' && !p.pago) continue;
+      if (statusFiltro === 'pendente' && p.pago) continue;
       if (statusFiltro === 'aberto' && (p.pago || vencido)) continue;
       if (statusFiltro === 'vencido' && !vencido) continue;
+
+      if (dataInicio || dataFim) {
+        const dataRef = statusFiltro === 'pago' ? p.data_pagamento : p.data_vencimento;
+        if (!dataRef) continue;
+        if (dataInicio && dataRef < dataInicio) continue;
+        if (dataFim && dataRef > dataFim) continue;
+      }
 
       linhas.push([
         f.processos?.clientes?.nome ?? '—',
@@ -87,13 +95,13 @@ function parcelasParaLinhas(financeiros: Financeiro[], statusFiltro: string): st
 
 const colunasFinanceiro = ['Cliente', 'Descrição', 'Tipo', 'Vencimento', 'Pagamento', 'Valor', 'Status'];
 
-export function exportarFinanceiroCSV(financeiros: Financeiro[], statusFiltro: string) {
-  const linhas = parcelasParaLinhas(financeiros, statusFiltro);
+export function exportarFinanceiroCSV(financeiros: Financeiro[], statusFiltro: string, dataInicio?: string, dataFim?: string) {
+  const linhas = parcelasParaLinhas(financeiros, statusFiltro, dataInicio, dataFim);
   downloadCSV('relatorio-financeiro.csv', [colunasFinanceiro, ...linhas]);
 }
 
-export function exportarFinanceiroPDF(financeiros: Financeiro[], statusFiltro: string) {
-  const linhas = parcelasParaLinhas(financeiros, statusFiltro);
+export function exportarFinanceiroPDF(financeiros: Financeiro[], statusFiltro: string, dataInicio?: string, dataFim?: string) {
+  const linhas = parcelasParaLinhas(financeiros, statusFiltro, dataInicio, dataFim);
   criarPDF('Relatório Financeiro', colunasFinanceiro, linhas);
 }
 
