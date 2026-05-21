@@ -15,6 +15,8 @@ import type { Financeiro, Parcela } from '../types/financeiro';
 import type { FinanceiroFormData } from '../lib/validations/financeiro';
 import type { ParcelaFormData } from '../lib/validations/parcela';
 
+type ParcelaRelatorio = Parcela & { _financeiro: Financeiro };
+
 export function Financeiro() {
   const { financeiros, loading, saving, error, createFinanceiro, updateFinanceiro, deleteFinanceiro, quitarParcela, editarParcela } = useFinanceiro();
   const { processos } = useProcessos();
@@ -65,8 +67,11 @@ export function Financeiro() {
       const matchStatus = !filtroStatus || item.status === filtroStatus;
 
       const matchPeriodo = (!dataInicio && !dataFim) || (item.parcelas ?? []).some(p => {
-        if (!p.pago || !p.data_pagamento) return false;
-        return (!dataInicio || p.data_pagamento >= dataInicio) && (!dataFim || p.data_pagamento <= dataFim);
+        if (filtroStatus === 'pago' && !p.pago) return false;
+        if (filtroStatus === 'pendente' && p.pago) return false;
+        const dataRef = filtroStatus === 'pago' ? p.data_pagamento : p.data_vencimento;
+        if (!dataRef) return false;
+        return (!dataInicio || dataRef >= dataInicio) && (!dataFim || dataRef <= dataFim);
       });
 
       return matchSearch && matchTipo && matchStatus && matchPeriodo;
@@ -89,6 +94,34 @@ export function Financeiro() {
       return sortDir === 'asc' ? cmp : -cmp;
     });
   }, [financeirosFiltrados, sortField, sortDir]);
+
+  const modoRelatorio = !!(dataInicio || dataFim);
+
+  const parcelasRelatorio = useMemo((): ParcelaRelatorio[] => {
+    if (!modoRelatorio) return [];
+    const result: ParcelaRelatorio[] = [];
+    for (const f of financeirosSorted) {
+      const parcelasOrdem = [...(f.parcelas ?? [])].sort((a, b) =>
+        a.data_vencimento.localeCompare(b.data_vencimento)
+      );
+      for (const p of parcelasOrdem) {
+        if (filtroStatus === 'pago' && !p.pago) continue;
+        if (filtroStatus === 'pendente' && p.pago) continue;
+        const dataRef = filtroStatus === 'pago' ? p.data_pagamento : p.data_vencimento;
+        if (!dataRef) continue;
+        if (dataInicio && dataRef < dataInicio) continue;
+        if (dataFim && dataRef > dataFim) continue;
+        result.push({ ...p, _financeiro: f });
+      }
+    }
+    const sortByPag = filtroStatus === 'pago';
+    result.sort((a, b) => {
+      const da = sortByPag ? (a.data_pagamento ?? a.data_vencimento) : a.data_vencimento;
+      const db = sortByPag ? (b.data_pagamento ?? b.data_vencimento) : b.data_vencimento;
+      return da.localeCompare(db);
+    });
+    return result;
+  }, [financeirosSorted, filtroStatus, dataInicio, dataFim, modoRelatorio]);
 
   async function handleCreateFinanceiro(data: FinanceiroFormData) {
     try {
@@ -193,10 +226,10 @@ export function Financeiro() {
             )}
           </div>
           <div className="flex gap-2 w-full sm:w-44">
-            <button className="btn-export flex-1 justify-center" onClick={() => exportarFinanceiroCSV(financeirosSorted, filtroStatus)}>
+            <button className="btn-export flex-1 justify-center" onClick={() => exportarFinanceiroCSV(financeirosSorted, filtroStatus, dataInicio, dataFim)}>
               <FileDown size={14} className="mr-1" />CSV
             </button>
-            <button className="btn-export flex-1 justify-center" onClick={() => exportarFinanceiroPDF(financeirosSorted, filtroStatus)}>
+            <button className="btn-export flex-1 justify-center" onClick={() => exportarFinanceiroPDF(financeirosSorted, filtroStatus, dataInicio, dataFim)}>
               <FileDown size={14} className="mr-1" />PDF
             </button>
           </div>
@@ -205,7 +238,9 @@ export function Financeiro() {
         {(search || filtroTipo || filtroStatus || dataInicio || dataFim) && (
           <div className="mt-2 px-1">
             <span className="search-results font-medium">
-              {financeirosFiltrados.length} resultado{financeirosFiltrados.length !== 1 ? 's' : ''} encontrado{financeirosFiltrados.length !== 1 ? 's' : ''}
+              {modoRelatorio
+                ? `${parcelasRelatorio.length} parcela${parcelasRelatorio.length !== 1 ? 's' : ''} encontrada${parcelasRelatorio.length !== 1 ? 's' : ''}`
+                : `${financeirosFiltrados.length} resultado${financeirosFiltrados.length !== 1 ? 's' : ''} encontrado${financeirosFiltrados.length !== 1 ? 's' : ''}`}
             </span>
           </div>
         )}
@@ -214,6 +249,51 @@ export function Financeiro() {
       <section className="table-container">
         {loading ? (
           <TableSkeleton rows={5} />
+        ) : modoRelatorio ? (
+          <table className="lawfy-table table-fixed">
+            <thead className="table-header">
+              <tr>
+                <th className="table-header-cell">Cliente</th>
+                <th className="table-header-cell">Descrição</th>
+                <th className="table-header-cell w-24">Tipo</th>
+                <th className="table-header-cell w-32">Vencimento</th>
+                <th className="table-header-cell w-32">Pagamento</th>
+                <th className="table-header-cell w-32 text-right">Valor</th>
+                <th className="table-header-cell w-28 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {parcelasRelatorio.length > 0 ? (
+                parcelasRelatorio.map(p => (
+                  <tr key={p.id} className="table-row">
+                    <td className="table-cell-secondary">{p._financeiro.processos?.clientes?.nome ?? '—'}</td>
+                    <td className="table-cell-main">{p._financeiro.descricao}</td>
+                    <td className="table-cell-secondary capitalize">{p._financeiro.tipo}</td>
+                    <td className="table-cell">{new Date(p.data_vencimento + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
+                    <td className="table-cell">{p.data_pagamento ? new Date(p.data_pagamento + 'T00:00:00').toLocaleDateString('pt-BR') : '—'}</td>
+                    <td className="table-cell text-right font-semibold">
+                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(p.valor_parcela)}
+                    </td>
+                    <td className="table-cell text-center">
+                      <span className={`badge-status-processo ${p.pago ? 'badge-status-pago' : 'badge-status-pendente'}`}>
+                        {p.pago ? 'PAGO' : 'ABERTO'}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7}>
+                    <EmptyState
+                      icon={Wallet}
+                      title="Nenhuma parcela encontrada"
+                      description="Tente ajustar os filtros ou o período selecionado."
+                    />
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         ) : (
           <table className="lawfy-table table-fixed">
             <thead className="table-header">
