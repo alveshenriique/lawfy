@@ -229,17 +229,15 @@ class FinanceiroController {
 
       if (errBusca || !atual) throw new AppError("Parcela não encontrada", 404);
 
+      // Parcelas pagas só permitem editar a data de pagamento
       if (atual.pago) {
         const { error } = await supabase
           .from('parcelas')
-          .update({
-            valor_parcela: Number(valor_parcela),
-            data_pagamento: data_pagamento ?? atual.data_pagamento,
-          })
+          .update({ data_pagamento: data_pagamento ?? atual.data_pagamento })
           .eq('id', id);
 
         if (error) throw new AppError(error.message, 400);
-        return res.json({ message: 'Parcela atualizada', reequilibrado: false });
+        return res.json({ message: 'Data de pagamento atualizada', reequilibrado: false });
       }
 
       // VERIFICAÇÃO CRUCIAL: O valor realmente mudou?
