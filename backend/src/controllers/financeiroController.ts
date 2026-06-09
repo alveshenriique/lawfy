@@ -142,19 +142,18 @@ class FinanceiroController {
           });
 
           await supabase.from('parcelas').insert(novasParcelas);
-        }
-      } else if (naoPagas.length === 0 && pagas.length > 0) {
-        // Todas as parcelas estão pagas — redistribui valor_total entre elas proporcionalmente
-        const totalAtual = pagas.reduce((acc: number, p: any) => acc + Number(p.valor_parcela), 0);
-        const novoTotal = Number(valor_total);
-
-        if (totalAtual !== novoTotal) {
-          const fator = novoTotal / totalAtual;
-          for (const p of pagas) {
-            await supabase
-              .from('parcelas')
-              .update({ valor_parcela: Number((Number(p.valor_parcela) * fator).toFixed(2)) })
-              .eq('id', p.id);
+        } else if (novasNaoPagas === 0 && pagas.length > 0) {
+          // Nenhuma parcela nova criada e todas já estão pagas — sincroniza valor com o novo total
+          const totalAtual = pagas.reduce((acc: number, p: any) => acc + Number(p.valor_parcela), 0);
+          const novoTotal = Number(valor_total);
+          if (Math.abs(totalAtual - novoTotal) > 0.01) {
+            const fator = novoTotal / totalAtual;
+            for (const p of pagas) {
+              await supabase
+                .from('parcelas')
+                .update({ valor_parcela: Number((Number(p.valor_parcela) * fator).toFixed(2)) })
+                .eq('id', p.id);
+            }
           }
         }
       }
