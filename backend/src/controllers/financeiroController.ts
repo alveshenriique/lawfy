@@ -97,15 +97,16 @@ class FinanceiroController {
       if (error) throw new AppError(error.message, 400);
       if (!data) throw new AppError('Registro não encontrado ou sem permissão', 404);
 
-      if (numero_parcelas) {
-        const { data: parcelas } = await supabase
-          .from('parcelas')
-          .select('*')
-          .eq('financeiro_id', id)
-          .order('data_vencimento', { ascending: true });
+      const { data: parcelas } = await supabase
+        .from('parcelas')
+        .select('*')
+        .eq('financeiro_id', id)
+        .order('data_vencimento', { ascending: true });
 
-        const pagas = (parcelas ?? []).filter((p: any) => p.pago);
-        const naoPagas = (parcelas ?? []).filter((p: any) => !p.pago);
+      const pagas = (parcelas ?? []).filter((p: any) => p.pago);
+      const naoPagas = (parcelas ?? []).filter((p: any) => !p.pago);
+
+      if (numero_parcelas) {
         const novasNaoPagas = Number(numero_parcelas) - pagas.length;
 
         if (novasNaoPagas < 0) {
@@ -141,6 +142,20 @@ class FinanceiroController {
           });
 
           await supabase.from('parcelas').insert(novasParcelas);
+        }
+      } else if (naoPagas.length === 0 && pagas.length > 0) {
+        // Todas as parcelas estão pagas — redistribui valor_total entre elas proporcionalmente
+        const totalAtual = pagas.reduce((acc: number, p: any) => acc + Number(p.valor_parcela), 0);
+        const novoTotal = Number(valor_total);
+
+        if (totalAtual !== novoTotal) {
+          const fator = novoTotal / totalAtual;
+          for (const p of pagas) {
+            await supabase
+              .from('parcelas')
+              .update({ valor_parcela: Number((Number(p.valor_parcela) * fator).toFixed(2)) })
+              .eq('id', p.id);
+          }
         }
       }
 
