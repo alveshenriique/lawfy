@@ -23,15 +23,15 @@ export function Processos() {
   const [searchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [filtroStatus, setFiltroStatus] = useState(searchParams.get('status') ?? '');
-  const [sortField, setSortField] = useState<'cliente' | 'status' | 'data' | 'tipo' | null>(null);
+  const [sortField, setSortField] = useState<'cliente' | 'status' | 'data' | 'tipo' | 'partes' | null>(null);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
 
-  function handleSort(field: 'cliente' | 'status' | 'data' | 'tipo') {
+  function handleSort(field: 'cliente' | 'status' | 'data' | 'tipo' | 'partes') {
     if (sortField === field) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
     else { setSortField(field); setSortDir('asc'); }
   }
 
-  function sortIcon(field: 'cliente' | 'status' | 'data' | 'tipo') {
+  function sortIcon(field: 'cliente' | 'status' | 'data' | 'tipo' | 'partes') {
     if (sortField !== field) return <ArrowUpDown size={13} className="opacity-40 shrink-0" />;
     return sortDir === 'asc' ? <ArrowUp size={13} className="shrink-0" /> : <ArrowDown size={13} className="shrink-0" />;
   }
@@ -57,6 +57,7 @@ export function Processos() {
       else if (sortField === 'status') cmp = a.status.localeCompare(b.status);
       else if (sortField === 'data') cmp = a.criado_em.localeCompare(b.criado_em);
       else if (sortField === 'tipo') cmp = a.tipo.localeCompare(b.tipo);
+      else if (sortField === 'partes') cmp = a.nome_partes.localeCompare(b.nome_partes, 'pt-BR');
       return sortDir === 'asc' ? cmp : -cmp;
     });
   }, [processosFiltrados, sortField, sortDir]);
@@ -149,7 +150,9 @@ export function Processos() {
                   <span className="inline-flex items-center gap-1">Tipo{sortIcon('tipo')}</span>
                 </th>
                 <th className="table-header-cell">Nº do Processo</th>
-                <th className="table-header-cell">Partes</th>
+                <th className="table-header-cell cursor-pointer select-none" onClick={() => handleSort('partes')}>
+                  <span className="inline-flex items-center gap-1">Partes{sortIcon('partes')}</span>
+                </th>
                 <th className="table-header-cell cursor-pointer select-none" onClick={() => handleSort('cliente')}>
                   <span className="inline-flex items-center gap-1">Cliente{sortIcon('cliente')}</span>
                 </th>

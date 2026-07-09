@@ -40,10 +40,10 @@ export function Financeiro() {
   const [filtroStatus, setFiltroStatus] = useState(searchParams.get('status') ?? '');
   const [dataInicio, setDataInicio] = useState('');
   const [dataFim, setDataFim] = useState('');
-  const [sortField, setSortField] = useState<'cliente' | 'valor' | 'vencimento' | null>(null);
+  const [sortField, setSortField] = useState<'cliente' | 'valor' | 'vencimento' | 'descricao' | null>(null);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
 
-  function handleSort(field: 'cliente' | 'valor' | 'vencimento') {
+  function handleSort(field: 'cliente' | 'valor' | 'vencimento' | 'descricao') {
     if (sortField === field) {
       setSortDir(d => d === 'asc' ? 'desc' : 'asc');
     } else {
@@ -52,7 +52,7 @@ export function Financeiro() {
     }
   }
 
-  function sortIcon(field: 'cliente' | 'valor' | 'vencimento') {
+  function sortIcon(field: 'cliente' | 'valor' | 'vencimento' | 'descricao') {
     if (sortField !== field) return <ArrowUpDown size={13} className="opacity-40 shrink-0" />;
     return sortDir === 'asc' ? <ArrowUp size={13} className="shrink-0" /> : <ArrowDown size={13} className="shrink-0" />;
   }
@@ -86,6 +86,8 @@ export function Financeiro() {
         cmp = (a.processos?.clientes?.nome ?? '').localeCompare(b.processos?.clientes?.nome ?? '', 'pt-BR');
       } else if (sortField === 'valor') {
         cmp = a.valor_total - b.valor_total;
+      } else if (sortField === 'descricao') {
+        cmp = a.descricao.localeCompare(b.descricao, 'pt-BR');
       } else if (sortField === 'vencimento') {
         const aData = [...(a.parcelas ?? [])].sort((x, y) => x.data_vencimento.localeCompare(y.data_vencimento))[0]?.data_vencimento ?? '';
         const bData = [...(b.parcelas ?? [])].sort((x, y) => x.data_vencimento.localeCompare(y.data_vencimento))[0]?.data_vencimento ?? '';
@@ -254,7 +256,9 @@ export function Financeiro() {
             <thead className="table-header">
               <tr>
                 <th className="table-header-cell">Cliente</th>
-                <th className="table-header-cell">Descrição</th>
+                <th className="table-header-cell cursor-pointer select-none" onClick={() => handleSort('descricao')}>
+                  <span className="inline-flex items-center gap-1">Descrição{sortIcon('descricao')}</span>
+                </th>
                 <th className="table-header-cell w-24">Tipo</th>
                 <th className="table-header-cell w-32">Vencimento</th>
                 <th className="table-header-cell w-32">Pagamento</th>
@@ -298,7 +302,9 @@ export function Financeiro() {
           <table className="lawfy-table table-fixed">
             <thead className="table-header">
               <tr>
-                <th className="table-header-cell">Descrição</th>
+                <th className="table-header-cell cursor-pointer select-none" onClick={() => handleSort('descricao')}>
+                  <span className="inline-flex items-center gap-1">Descrição{sortIcon('descricao')}</span>
+                </th>
                 <th className="table-header-cell w-36 cursor-pointer select-none" onClick={() => handleSort('cliente')}>
                   <span className="inline-flex items-center gap-1">Cliente {sortIcon('cliente')}</span>
                 </th>
