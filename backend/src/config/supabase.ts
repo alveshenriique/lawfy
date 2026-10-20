@@ -13,6 +13,14 @@ if (!supabaseUrl || !supabaseKey) {
 // Cliente admin — ignora RLS, usado só para autenticação
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Cliente descartável — só para validar credenciais (ex: senha atual).
+// Não guarda sessão nem agenda refresh, então nada vaza para outras requisições.
+export function createCredentialCheckClient() {
+  return createClient(supabaseUrl, supabaseKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
 // Cliente com token do usuário — respeita RLS
 export function createUserClient(token: string) {
   return createClient(supabaseUrl, supabaseKey, {

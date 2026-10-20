@@ -25,7 +25,7 @@ export function useAuth() {
       await context.signIn(data);
       
       toast.success("Bem-vindo ao Lawfy!");
-      navigate('/dashboard');
+      navigate('/');
     } catch (error) {
       // Type Guard seguro em vez de Assertion
       if (isAxiosError(error) && error.response) {

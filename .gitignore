@@ -18,6 +18,9 @@
 **/.env.*
 !.env.example
 
+# Scripts com segredos (usar o .example versionado como template)
+backend/scripts/seed-demo.ts
+
 # Editor e Sistema
 .vscode/*
 !.vscode/extensions.json
