@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
 const pageTitles: Record<string, string> = {
-  '/dashboard': 'Painel de Controle',
+  '/': 'Painel de Controle',
   '/clientes': 'Clientes',
   '/processos': 'Processos',
   '/financeiro': 'Financeiro',
