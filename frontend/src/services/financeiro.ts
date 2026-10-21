@@ -25,7 +25,14 @@ export const financeiroService = {
   quitarParcela: (id: number, pago: boolean, data_pagamento?: string) =>
     api.patch(`/financeiro/parcelas/${id}/status`, { pago, data_pagamento }).then(r => r.data),
 
-  // Rota de edição (Reequilíbrio) - Bate em /parcelas/:id/editar
-  editarParcela: (id: number, data: { valor_parcela: number; data_vencimento: string; data_pagamento?: string }) =>
-    api.patch(`/financeiro/parcelas/${id}/editar`, data).then(r => r.data),
+  // Rota de edição (Reequilíbrio + cascata de datas opcional) - Bate em /parcelas/:id/editar
+  editarParcela: (
+    id: number,
+    data: { valor_parcela: number; data_vencimento: string; data_pagamento?: string; recalcular_seguintes?: boolean }
+  ) =>
+    api.patch(`/financeiro/parcelas/${id}/editar`, {
+      ...data,
+      // Sempre booleano explícito no payload: ausente (parcela paga, sem checkbox) vira false
+      recalcular_seguintes: data.recalcular_seguintes ?? false,
+    }).then(r => r.data),
 };

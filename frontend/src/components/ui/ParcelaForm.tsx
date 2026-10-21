@@ -12,6 +12,7 @@ interface ParcelaFormProps {
 
 export function ParcelaForm({ onSubmit, isLoading, defaultValues }: ParcelaFormProps) {
   const {
+    register,
     handleSubmit,
     control,
     formState: { errors },
@@ -21,6 +22,7 @@ export function ParcelaForm({ onSubmit, isLoading, defaultValues }: ParcelaFormP
       valor_parcela: defaultValues?.valor_parcela ?? 0,
       data_vencimento: defaultValues?.data_vencimento ?? '',
       data_pagamento: defaultValues?.data_pagamento ?? '',
+      recalcular_seguintes: false,
     },
   });
 
@@ -110,6 +112,23 @@ export function ParcelaForm({ onSubmit, isLoading, defaultValues }: ParcelaFormP
             </div>
           )}
         />
+      )}
+
+      {/* Cascata de datas — só faz sentido em parcela aberta; parcela paga nem exibe a opção */}
+      {!defaultValues?.pago && (
+        <label className="flex items-start gap-2 text-sm text-lawfy-text cursor-pointer select-none">
+          <input
+            type="checkbox"
+            className="mt-0.5 accent-lawfy-primary"
+            {...register('recalcular_seguintes')}
+          />
+          <span>
+            Recalcular os vencimentos das parcelas seguintes
+            <span className="block text-xs text-lawfy-text-soft mt-0.5">
+              As parcelas em aberto com vencimento posterior passam a vencer um mês após a outra, a partir desta. Parcelas pagas não são alteradas.
+            </span>
+          </span>
+        </label>
       )}
 
       <div className="pt-2">
