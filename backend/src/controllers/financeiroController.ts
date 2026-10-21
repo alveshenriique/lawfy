@@ -218,7 +218,7 @@ class FinanceiroController {
     try {
       const supabase = createUserClient(req.token!);
       const { id } = req.params;
-      const { valor_parcela, data_vencimento, data_pagamento } = req.body;
+      const { valor_parcela, data_vencimento, data_pagamento, recalcular_seguintes } = req.body;
 
       // 1. Busca dados da parcela e do financeiro pai
       const { data: atual, error: errBusca } = await supabase
@@ -242,7 +242,10 @@ class FinanceiroController {
 
       // VERIFICAÇÃO CRUCIAL: O valor realmente mudou?
       // Se apenas a data mudou, o 'valorAlterado' será false.
-      const valorAlterado = Number(atual.valor_parcela) !== Number(valor_parcela);
+      // Tolerância de um centavo: valores rateados ficam com dízima no banco (ex: 3333.3333)
+      // e voltam do formulário arredondados (3333.33). Igualdade exata dispararia a
+      // redistribuição sem o usuário ter mexido no valor.
+      const valorAlterado = Math.abs(Number(atual.valor_parcela) - Number(valor_parcela)) >= 0.01;
 
       // 2. Atualiza a parcela editada (Sempre atualiza, seja data ou valor)
       await supabase
@@ -286,9 +289,46 @@ class FinanceiroController {
         }
       }
 
-      return res.json({ 
+      // 4. CASCATA DE DATAS: só quando pedido explicitamente.
+      // Recalcula o vencimento das parcelas seguintes a esta (não pagas e com vencimento
+      // estritamente posterior à nova data da âncora), uma por mês a partir da âncora.
+      // Não toca pagas, não toca anteriores/iguais à âncora e não mexe em valores.
+      let recalculadas = 0;
+      if (recalcular_seguintes === true) {
+        const { data: seguintes, error: errSeguintes } = await supabase
+          .from('parcelas')
+          .select('id, data_vencimento')
+          .eq('financeiro_id', atual.financeiro_id)
+          .eq('pago', false)
+          .gt('data_vencimento', data_vencimento)
+          .neq('id', Number(id))
+          .order('data_vencimento', { ascending: true })
+          .order('id', { ascending: true });
+
+        if (errSeguintes) throw new AppError("Erro ao buscar parcelas seguintes para recalcular", 400);
+
+        // Mesma técnica da recriação em editar(): setMonth preserva o dia do mês e o
+        // sufixo T00:00:00 evita o deslocamento de fuso (servidor roda em UTC).
+        const dataAncora = new Date(data_vencimento + 'T00:00:00');
+
+        for (const [i, p] of (seguintes ?? []).entries()) {
+          const novaData = new Date(dataAncora);
+          novaData.setMonth(novaData.getMonth() + (i + 1));
+
+          const { error: errCascata } = await supabase
+            .from('parcelas')
+            .update({ data_vencimento: novaData.toISOString().split('T')[0] })
+            .eq('id', p.id);
+
+          if (errCascata) throw new AppError(errCascata.message, 400);
+          recalculadas++;
+        }
+      }
+
+      return res.json({
         message: valorAlterado ? 'Parcela e saldo atualizados' : 'Data da parcela atualizada',
-        reequilibrado: valorAlterado
+        reequilibrado: valorAlterado,
+        recalculadas,
       });
     } catch (error: any) {
       const statusCode = error instanceof AppError ? error.statusCode : 400;
